@@ -71,27 +71,43 @@ export function AddressField({ label, value, onChange, error, required, id, plac
           {label}
           {required && <span style={{ color: "#E3B679" }}> *</span>}
         </span>
-        <input
-          id={inputId}
-          type="text"
-          autoComplete="off"
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          required={required}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : undefined}
-          className="focus-copper mt-2 w-full font-body text-sm rounded-xl px-4 py-3 outline-none transition-all duration-200"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: error ? "1px solid #f87171" : "1px solid rgba(255,255,255,0.08)",
-            color: "#FAFAF8",
-          }}
-        />
+        <span className="relative mt-2 block">
+          <input
+            id={inputId}
+            type="text"
+            autoComplete="off"
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            required={required}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${inputId}-error` : undefined}
+            className="focus-copper w-full font-body text-sm rounded-xl pl-4 pr-10 py-3 outline-none transition-all duration-200"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: error ? "1px solid #f87171" : "1px solid rgba(255,255,255,0.08)",
+              color: "#FAFAF8",
+            }}
+          />
+          <svg
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 2c-3.31 0-6 2.69-6 6 0 4.5 6 10 6 10s6-5.5 6-10c0-3.31-2.69-6-6-6z"
+              stroke="#A8A29E"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+            <circle cx="10" cy="8" r="2" stroke="#A8A29E" strokeWidth="1.4" />
+          </svg>
+        </span>
       </label>
       {error && (
         <span id={`${inputId}-error`} className="mt-1.5 block text-xs text-red-400">

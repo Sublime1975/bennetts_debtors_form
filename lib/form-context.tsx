@@ -26,6 +26,7 @@ const initialFormData: AppFormData = {
     email: "",
     phone: "",
     physicalAddress: "",
+    country: "South Africa",
     postalAddress: "",
     postalSameAsPhysical: false,
     accountsContactDifferent: false,
@@ -45,7 +46,7 @@ const initialFormData: AppFormData = {
     bbeeLevel: "",
   },
   banking: {
-    isForeignBank: null,
+    isForeignBank: false,
     bankName: "",
     accountHolder: "",
     accountNumber: "",
@@ -53,7 +54,6 @@ const initialFormData: AppFormData = {
     accountType: "",
     swiftCode: "",
     bankCountry: "",
-    accountCurrency: "",
     bankAddress: "",
   },
   documents: {

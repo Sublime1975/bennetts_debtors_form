@@ -10,7 +10,6 @@ const CIPC_RE = /^\d{4}\/\d{6}\/\d{2}$/;
 const BRANCH_CODE_RE = /^\d{6}$/;
 const ACCOUNT_NUMBER_RE = /^\d{6,16}$/;
 const SWIFT_RE = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
-const CURRENCY_RE = /^[A-Z]{3}$/;
 
 function requireField(errors: FieldErrors, key: string, value: string, message = "This field is required") {
   if (!value || value.trim() === "") {
@@ -67,6 +66,7 @@ export function validateContact(data: AppFormData): FieldErrors {
     errors.phone = "Enter a valid South African phone number";
   }
   requireField(errors, "physicalAddress", contact.physicalAddress);
+  requireField(errors, "country", contact.country, "Select a country");
 
   if (contact.accountsContactDifferent) {
     requireField(errors, "accountsContactName", contact.accountsContactName);
@@ -145,21 +145,15 @@ export function validateTax(data: AppFormData): FieldErrors {
 export function validateBanking(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { banking } = data;
-  requireField(errors, "bankName", banking.bankName);
   requireField(errors, "accountHolder", banking.accountHolder);
+  requireField(errors, "bankName", banking.bankName);
   requireField(errors, "accountNumber", banking.accountNumber);
 
-  if (banking.isForeignBank === null) {
-    errors.isForeignBank = "Select whether this is a local or foreign bank account";
-  } else if (banking.isForeignBank) {
+  if (banking.isForeignBank) {
+    requireField(errors, "bankCountry", banking.bankCountry);
     requireField(errors, "swiftCode", banking.swiftCode);
     if (banking.swiftCode && !SWIFT_RE.test(banking.swiftCode.toUpperCase())) {
       errors.swiftCode = "Enter a valid 8 or 11 character SWIFT/BIC code";
-    }
-    requireField(errors, "bankCountry", banking.bankCountry);
-    requireField(errors, "accountCurrency", banking.accountCurrency);
-    if (banking.accountCurrency && !CURRENCY_RE.test(banking.accountCurrency.toUpperCase())) {
-      errors.accountCurrency = "Enter a 3-letter currency code, e.g. USD";
     }
   } else {
     if (banking.accountNumber && !ACCOUNT_NUMBER_RE.test(banking.accountNumber)) {

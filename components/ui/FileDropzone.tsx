@@ -47,6 +47,14 @@ export function FileDropzone({ label, value, onChange, error, required, id }: Fi
       <span className="font-body text-xs tracking-wide text-muted">
         {label}
         {required && <span style={{ color: "#E3B679" }}> *</span>}
+        {!required && (
+          <span
+            className="ml-2 inline-block rounded-full px-2 py-0.5 text-[10px] align-middle"
+            style={{ background: "rgba(255,255,255,0.06)", color: "#A8A29E" }}
+          >
+            Optional
+          </span>
+        )}
       </span>
       {value ? (
         <div

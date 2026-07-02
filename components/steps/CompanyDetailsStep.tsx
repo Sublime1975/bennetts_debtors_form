@@ -42,6 +42,7 @@ export function CompanyDetailsStep() {
         label="Entity type"
         name="entityType"
         required
+        placeholder="Select entity type"
         options={ENTITY_TYPES}
         value={company.entityType}
         onChange={(e) => updateSection("company", { entityType: e.target.value as EntityType })}

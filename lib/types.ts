@@ -50,6 +50,7 @@ export interface ContactDetails {
   email: string;
   phone: string;
   physicalAddress: string;
+  country: string;
   postalAddress: string;
   postalSameAsPhysical: boolean;
   accountsContactDifferent: boolean;
@@ -71,7 +72,7 @@ export interface TaxDetails {
 }
 
 export interface BankingDetails {
-  isForeignBank: boolean | null;
+  isForeignBank: boolean;
   bankName: string;
   accountHolder: string;
   accountNumber: string;
@@ -79,7 +80,6 @@ export interface BankingDetails {
   accountType: AccountType | "";
   swiftCode: string;
   bankCountry: string;
-  accountCurrency: string;
   bankAddress: string;
 }
 

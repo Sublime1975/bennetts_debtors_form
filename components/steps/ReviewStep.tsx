@@ -12,6 +12,28 @@ import { validateDeclarationAndConsent } from "@/lib/validation";
 import { generateReferenceNumber } from "@/lib/reference-number";
 import { StepId } from "@/lib/types";
 
+function EditLink({ stepId, onEdit }: { stepId: StepId; onEdit: (step: StepId) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onEdit(stepId)}
+      className="focus-copper flex items-center gap-1 font-body text-xs transition-colors rounded"
+      style={{ color: "#E3B679" }}
+    >
+      <svg viewBox="0 0 16 16" className="w-3 h-3" fill="none" aria-hidden="true">
+        <path
+          d="M11 2l3 3-8 8-3.5.5.5-3.5 8-8z"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      Edit
+    </button>
+  );
+}
+
 function ReviewGroup({
   title,
   stepId,
@@ -27,18 +49,15 @@ function ReviewGroup({
     <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-body text-xs tracking-wide uppercase text-muted">{title}</h3>
-        <button
-          type="button"
-          onClick={() => onEdit(stepId)}
-          className="focus-copper font-body text-xs transition-colors rounded"
-          style={{ color: "#E3B679" }}
-        >
-          Edit
-        </button>
+        <EditLink stepId={stepId} onEdit={onEdit} />
       </div>
-      <dl className="space-y-1.5">
-        {rows.map(([label, value]) => (
-          <div key={label} className="flex justify-between gap-4 text-sm font-body">
+      <dl>
+        {rows.map(([label, value], i) => (
+          <div
+            key={label}
+            className="flex justify-between gap-4 py-2 text-sm font-body"
+            style={i > 0 ? { borderTop: "1px solid rgba(255,255,255,0.06)" } : undefined}
+          >
             <dt className="text-muted">{label}</dt>
             <dd className="text-ink text-right truncate">{value || "—"}</dd>
           </div>
@@ -83,8 +102,8 @@ export function ReviewStep() {
     >
       <Header />
       <Card>
-        <h2 className="font-display text-2xl mb-1 text-ink">Review & declaration</h2>
-        <p className="font-body text-sm mb-8 text-muted">Check everything below before submitting.</p>
+        <h2 className="font-display text-2xl mb-1 text-ink">Review & submit</h2>
+        <p className="font-body text-sm mb-8 text-muted">Please review your details before submitting.</p>
 
         <div className="space-y-4">
           <ReviewGroup
@@ -113,6 +132,7 @@ export function ReviewStep() {
               ["Email", contact.email],
               ["Phone", contact.phone],
               ["Physical address", contact.physicalAddress],
+              ["Country", contact.country],
               ["Postal address", contact.postalSameAsPhysical ? contact.physicalAddress : contact.postalAddress],
             ]}
           />
@@ -147,15 +167,14 @@ export function ReviewStep() {
             stepId="banking"
             onEdit={goToStep}
             rows={[
-              ["Local or foreign", banking.isForeignBank === null ? "" : banking.isForeignBank ? "Foreign" : "Local"],
-              ["Bank name", banking.bankName],
+              ["Local or foreign", banking.isForeignBank ? "Foreign" : "Local"],
               ["Account holder", banking.accountHolder],
+              ["Bank name", banking.bankName],
               ["Account number", banking.accountNumber],
               ...(banking.isForeignBank
                 ? ([
-                    ["SWIFT/BIC code", banking.swiftCode],
                     ["Bank country", banking.bankCountry],
-                    ["Account currency", banking.accountCurrency],
+                    ["SWIFT/BIC code", banking.swiftCode],
                   ] as [string, string][])
                 : ([
                     ["Branch code", banking.branchCode],
@@ -196,14 +215,14 @@ export function ReviewStep() {
           />
           <CheckboxField
             id="accurateInfo"
-            label="I confirm the information provided is accurate"
+            label="I confirm the information provided is accurate and up to date."
             checked={consent.accurateInfo}
             onChange={(checked) => updateSection("consent", { accurateInfo: checked })}
             error={errors.accurateInfo}
           />
           <CheckboxField
             id="popiConsent"
-            label="I consent to Bennett's Engineering processing this information in accordance with the POPI Act"
+            label="I consent to Bennett's Engineering processing this information in accordance with the POPI Act."
             checked={consent.popiConsent}
             onChange={(checked) => updateSection("consent", { popiConsent: checked })}
             error={errors.popiConsent}

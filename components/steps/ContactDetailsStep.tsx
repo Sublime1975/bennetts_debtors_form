@@ -4,9 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
 import { AddressField } from "@/components/ui/AddressField";
+import { SelectField } from "@/components/ui/SelectField";
 import { CheckboxField } from "@/components/ui/CheckboxField";
 import { useFormState } from "@/lib/form-context";
 import { validateContact } from "@/lib/validation";
+import { COUNTRIES } from "@/lib/constants";
 
 export function ContactDetailsStep() {
   const { formData, updateSection, errors, setErrors, goNext } = useFormState();
@@ -21,9 +23,10 @@ export function ContactDetailsStep() {
   return (
     <StepShell title="Contact details" description="Who should we speak to about this application?" onNext={handleNext}>
       <Field
-        label="Contact person"
+        label="Contact person name"
         name="contactPerson"
         required
+        placeholder="Full name"
         value={contact.contactPerson}
         onChange={(e) => updateSection("contact", { contactPerson: e.target.value })}
         error={errors.contactPerson}
@@ -33,6 +36,7 @@ export function ContactDetailsStep() {
         name="email"
         type="email"
         required
+        placeholder="name@company.co.za"
         value={contact.email}
         onChange={(e) => updateSection("contact", { email: e.target.value })}
         error={errors.email}
@@ -42,7 +46,7 @@ export function ContactDetailsStep() {
         name="phone"
         type="tel"
         required
-        placeholder="082 000 0000"
+        placeholder="082 000 0000 or +27 82 000 0000"
         value={contact.phone}
         onChange={(e) => updateSection("contact", { phone: e.target.value })}
         error={errors.phone}
@@ -51,9 +55,19 @@ export function ContactDetailsStep() {
         id="physicalAddress"
         label="Physical address"
         required
+        placeholder="Start typing your street address…"
         value={contact.physicalAddress}
         onChange={(value) => updateSection("contact", { physicalAddress: value })}
         error={errors.physicalAddress}
+      />
+      <SelectField
+        label="Country"
+        required
+        placeholder="Select country"
+        options={COUNTRIES}
+        value={contact.country}
+        onChange={(e) => updateSection("contact", { country: e.target.value })}
+        error={errors.country}
       />
       <CheckboxField
         id="postalSameAsPhysical"

@@ -21,7 +21,7 @@ export function TaxComplianceStep() {
   };
 
   return (
-    <StepShell title="Tax & compliance" onNext={handleNext}>
+    <StepShell title="Tax & compliance" description="Your tax registration and B-BBEE status." onNext={handleNext}>
       <ToggleField
         label="VAT registered?"
         required
@@ -52,6 +52,7 @@ export function TaxComplianceStep() {
       <SelectField
         label="B-BBEE level"
         required
+        placeholder="Select B-BBEE level"
         options={BBEE_LEVELS}
         value={tax.bbeeLevel}
         onChange={(e) => updateSection("tax", { bbeeLevel: e.target.value as BbeeLevel })}
