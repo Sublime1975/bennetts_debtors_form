@@ -59,6 +59,7 @@ export function ContactDetailsStep() {
         value={contact.physicalAddress}
         onChange={(value) => updateSection("contact", { physicalAddress: value })}
         error={errors.physicalAddress}
+        countryCode={contact.country === "South Africa" ? "za" : undefined}
       />
       <SelectField
         label="Country"
@@ -83,6 +84,7 @@ export function ContactDetailsStep() {
               label="Postal address"
               value={contact.postalAddress}
               onChange={(value) => updateSection("contact", { postalAddress: value })}
+              countryCode={contact.country === "South Africa" ? "za" : undefined}
             />
           </motion.div>
         )}

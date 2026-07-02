@@ -7,7 +7,7 @@ import { SelectField } from "@/components/ui/SelectField";
 import { ToggleField } from "@/components/ui/ToggleField";
 import { useFormState } from "@/lib/form-context";
 import { validateCompany } from "@/lib/validation";
-import { ENTITY_TYPES } from "@/lib/constants";
+import { ENTITY_TYPES, COUNTRIES } from "@/lib/constants";
 import { EntityType } from "@/lib/types";
 
 export function CompanyDetailsStep() {
@@ -66,9 +66,11 @@ export function CompanyDetailsStep() {
             exit={{ opacity: 0, height: 0 }}
             className="space-y-5"
           >
-            <Field
+            <SelectField
               label="Country of registration"
               required
+              placeholder="Select country"
+              options={COUNTRIES.filter((c) => c !== "South Africa")}
               value={company.countryOfRegistration}
               onChange={(e) => updateSection("company", { countryOfRegistration: e.target.value })}
               error={errors.countryOfRegistration}

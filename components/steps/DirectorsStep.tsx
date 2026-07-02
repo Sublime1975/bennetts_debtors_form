@@ -67,6 +67,7 @@ export function DirectorsStep() {
                 value={director.residentialAddress}
                 onChange={(value) => updateDirector(index, { residentialAddress: value })}
                 error={errors[`directors.${index}.residentialAddress`]}
+                countryCode="za"
               />
               <FileDropzone
                 id={`director-${index}-id`}

@@ -10,6 +10,8 @@ interface AddressFieldProps {
   required?: boolean;
   id?: string;
   placeholder?: string;
+  /** ISO 3166-1 alpha-2 code to restrict the address lookup to (e.g. "za"). Omit to search worldwide. */
+  countryCode?: string;
 }
 
 interface Suggestion {
@@ -17,7 +19,7 @@ interface Suggestion {
   display_name: string;
 }
 
-export function AddressField({ label, value, onChange, error, required, id, placeholder }: AddressFieldProps) {
+export function AddressField({ label, value, onChange, error, required, id, placeholder, countryCode }: AddressFieldProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,10 +37,10 @@ export function AddressField({ label, value, onChange, error, required, id, plac
       const params = new URLSearchParams({
         format: "json",
         addressdetails: "0",
-        countrycodes: "za",
         limit: "5",
         q: value,
       });
+      if (countryCode) params.set("countrycodes", countryCode);
       fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`)
         .then((res) => (res.ok ? res.json() : []))
         .then((data: Suggestion[]) => {
@@ -50,7 +52,7 @@ export function AddressField({ label, value, onChange, error, required, id, plac
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [value]);
+  }, [value, countryCode]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
