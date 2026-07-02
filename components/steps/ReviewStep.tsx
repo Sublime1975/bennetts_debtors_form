@@ -95,7 +95,13 @@ export function ReviewStep() {
               ["Trading name", company.tradingName],
               ["Registered name", company.registeredName],
               ["Entity type", company.entityType],
-              ["CIPC number", company.cipcNumber],
+              ["Local or foreign", company.isForeignEntity === null ? "" : company.isForeignEntity ? "Foreign" : "Local"],
+              ...(company.isForeignEntity
+                ? ([
+                    ["Country of registration", company.countryOfRegistration],
+                    ["Foreign registration number", company.foreignRegistrationNumber],
+                  ] as [string, string][])
+                : ([["CIPC number", company.cipcNumber]] as [string, string][])),
             ]}
           />
           <ReviewGroup
@@ -117,12 +123,10 @@ export function ReviewStep() {
             rows={directors.map((d, i) => [`Director ${i + 1}`, `${d.fullName} (${d.idNumber})`] as [string, string])}
           />
           <ReviewGroup
-            title="Trade & bank references"
+            title="Trade references"
             stepId="references"
             onEdit={goToStep}
             rows={[
-              ["Bank name", references.bankName],
-              ["Bank branch", references.bankBranch],
               ["Trade ref 1", references.tradeRef1.companyName],
               ["Trade ref 2", references.tradeRef2.companyName],
             ]}
@@ -143,11 +147,20 @@ export function ReviewStep() {
             stepId="banking"
             onEdit={goToStep}
             rows={[
+              ["Local or foreign", banking.isForeignBank === null ? "" : banking.isForeignBank ? "Foreign" : "Local"],
               ["Bank name", banking.bankName],
               ["Account holder", banking.accountHolder],
               ["Account number", banking.accountNumber],
-              ["Branch code", banking.branchCode],
-              ["Account type", banking.accountType],
+              ...(banking.isForeignBank
+                ? ([
+                    ["SWIFT/BIC code", banking.swiftCode],
+                    ["Bank country", banking.bankCountry],
+                    ["Account currency", banking.accountCurrency],
+                  ] as [string, string][])
+                : ([
+                    ["Branch code", banking.branchCode],
+                    ["Account type", banking.accountType],
+                  ] as [string, string][])),
             ]}
           />
           <ReviewGroup title="Document uploads" stepId="documents" onEdit={goToStep} rows={documentRows} />

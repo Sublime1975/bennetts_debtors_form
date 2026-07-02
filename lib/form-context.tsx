@@ -16,7 +16,10 @@ const initialFormData: AppFormData = {
     tradingName: "",
     registeredName: "",
     entityType: "",
+    isForeignEntity: null,
     cipcNumber: "",
+    countryOfRegistration: "",
+    foreignRegistrationNumber: "",
   },
   contact: {
     contactPerson: "",
@@ -32,10 +35,6 @@ const initialFormData: AppFormData = {
   },
   directors: [blankDirector()],
   references: {
-    bankName: "",
-    bankBranch: "",
-    bankContactPerson: "",
-    bankContactTel: "",
     tradeRef1: { companyName: "", contactPerson: "", phone: "", email: "" },
     tradeRef2: { companyName: "", contactPerson: "", phone: "", email: "" },
   },
@@ -46,11 +45,16 @@ const initialFormData: AppFormData = {
     bbeeLevel: "",
   },
   banking: {
+    isForeignBank: null,
     bankName: "",
     accountHolder: "",
     accountNumber: "",
     branchCode: "",
     accountType: "",
+    swiftCode: "",
+    bankCountry: "",
+    accountCurrency: "",
+    bankAddress: "",
   },
   documents: {
     cipcCertificate: null,

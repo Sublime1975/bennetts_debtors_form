@@ -39,7 +39,10 @@ export interface CompanyDetails {
   tradingName: string;
   registeredName: string;
   entityType: EntityType | "";
+  isForeignEntity: boolean | null;
   cipcNumber: string;
+  countryOfRegistration: string;
+  foreignRegistrationNumber: string;
 }
 
 export interface ContactDetails {
@@ -56,10 +59,6 @@ export interface ContactDetails {
 }
 
 export interface ReferencesDetails {
-  bankName: string;
-  bankBranch: string;
-  bankContactPerson: string;
-  bankContactTel: string;
   tradeRef1: TradeReference;
   tradeRef2: TradeReference;
 }
@@ -72,11 +71,16 @@ export interface TaxDetails {
 }
 
 export interface BankingDetails {
+  isForeignBank: boolean | null;
   bankName: string;
   accountHolder: string;
   accountNumber: string;
   branchCode: string;
   accountType: AccountType | "";
+  swiftCode: string;
+  bankCountry: string;
+  accountCurrency: string;
+  bankAddress: string;
 }
 
 export interface DocumentsDetails {

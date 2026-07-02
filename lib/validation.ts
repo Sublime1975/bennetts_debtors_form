@@ -3,6 +3,14 @@ import { AppFormData, Director, FieldErrors, UploadedFileMeta } from "./types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SA_PHONE_RE = /^(\+27|0)[1-9]\d{8}$/;
+const SA_ID_RE = /^\d{13}$/;
+const VAT_RE = /^\d{10}$/;
+const INCOME_TAX_RE = /^\d{10}$/;
+const CIPC_RE = /^\d{4}\/\d{6}\/\d{2}$/;
+const BRANCH_CODE_RE = /^\d{6}$/;
+const ACCOUNT_NUMBER_RE = /^\d{6,16}$/;
+const SWIFT_RE = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
+const CURRENCY_RE = /^[A-Z]{3}$/;
 
 function requireField(errors: FieldErrors, key: string, value: string, message = "This field is required") {
   if (!value || value.trim() === "") {
@@ -10,12 +18,39 @@ function requireField(errors: FieldErrors, key: string, value: string, message =
   }
 }
 
+// SA ID numbers carry a Luhn check digit (same algorithm as card numbers).
+function isValidSaIdChecksum(id: string): boolean {
+  let sum = 0;
+  let alternate = false;
+  for (let i = id.length - 1; i >= 0; i--) {
+    let digit = parseInt(id[i], 10);
+    if (alternate) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+    alternate = !alternate;
+  }
+  return sum % 10 === 0;
+}
+
 export function validateCompany(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { company } = data;
   requireField(errors, "tradingName", company.tradingName);
   requireField(errors, "entityType", company.entityType, "Select an entity type");
-  requireField(errors, "cipcNumber", company.cipcNumber);
+
+  if (company.isForeignEntity === null) {
+    errors.isForeignEntity = "Select whether this is a local or foreign entity";
+  } else if (company.isForeignEntity) {
+    requireField(errors, "countryOfRegistration", company.countryOfRegistration);
+    requireField(errors, "foreignRegistrationNumber", company.foreignRegistrationNumber);
+  } else {
+    requireField(errors, "cipcNumber", company.cipcNumber);
+    if (company.cipcNumber && !CIPC_RE.test(company.cipcNumber)) {
+      errors.cipcNumber = "Enter a valid CIPC number, e.g. 2020/123456/07";
+    }
+  }
   return errors;
 }
 
@@ -47,6 +82,13 @@ export function validateContact(data: AppFormData): FieldErrors {
 function validateDirector(director: Director, index: number, errors: FieldErrors) {
   requireField(errors, `directors.${index}.fullName`, director.fullName);
   requireField(errors, `directors.${index}.idNumber`, director.idNumber);
+  if (director.idNumber) {
+    if (!SA_ID_RE.test(director.idNumber)) {
+      errors[`directors.${index}.idNumber`] = "Enter a valid 13-digit SA ID number";
+    } else if (!isValidSaIdChecksum(director.idNumber)) {
+      errors[`directors.${index}.idNumber`] = "This doesn't look like a valid SA ID number";
+    }
+  }
   requireField(errors, `directors.${index}.residentialAddress`, director.residentialAddress);
   if (!director.idDocument) {
     errors[`directors.${index}.idDocument`] = "Upload a copy of this director's ID";
@@ -66,10 +108,6 @@ export function validateDirectors(directors: Director[]): FieldErrors {
 export function validateReferences(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { references } = data;
-  requireField(errors, "bankName", references.bankName);
-  requireField(errors, "bankBranch", references.bankBranch);
-  requireField(errors, "bankContactPerson", references.bankContactPerson);
-  requireField(errors, "bankContactTel", references.bankContactTel);
 
   (["tradeRef1", "tradeRef2"] as const).forEach((key) => {
     const ref = references[key];
@@ -92,8 +130,14 @@ export function validateTax(data: AppFormData): FieldErrors {
   }
   if (tax.vatRegistered) {
     requireField(errors, "vatNumber", tax.vatNumber);
+    if (tax.vatNumber && !VAT_RE.test(tax.vatNumber)) {
+      errors.vatNumber = "VAT number must be exactly 10 digits";
+    }
   }
   requireField(errors, "incomeTaxNumber", tax.incomeTaxNumber);
+  if (tax.incomeTaxNumber && !INCOME_TAX_RE.test(tax.incomeTaxNumber)) {
+    errors.incomeTaxNumber = "Income tax number must be exactly 10 digits";
+  }
   requireField(errors, "bbeeLevel", tax.bbeeLevel, "Select a B-BBEE level");
   return errors;
 }
@@ -104,8 +148,29 @@ export function validateBanking(data: AppFormData): FieldErrors {
   requireField(errors, "bankName", banking.bankName);
   requireField(errors, "accountHolder", banking.accountHolder);
   requireField(errors, "accountNumber", banking.accountNumber);
-  requireField(errors, "branchCode", banking.branchCode);
-  requireField(errors, "accountType", banking.accountType, "Select an account type");
+
+  if (banking.isForeignBank === null) {
+    errors.isForeignBank = "Select whether this is a local or foreign bank account";
+  } else if (banking.isForeignBank) {
+    requireField(errors, "swiftCode", banking.swiftCode);
+    if (banking.swiftCode && !SWIFT_RE.test(banking.swiftCode.toUpperCase())) {
+      errors.swiftCode = "Enter a valid 8 or 11 character SWIFT/BIC code";
+    }
+    requireField(errors, "bankCountry", banking.bankCountry);
+    requireField(errors, "accountCurrency", banking.accountCurrency);
+    if (banking.accountCurrency && !CURRENCY_RE.test(banking.accountCurrency.toUpperCase())) {
+      errors.accountCurrency = "Enter a 3-letter currency code, e.g. USD";
+    }
+  } else {
+    if (banking.accountNumber && !ACCOUNT_NUMBER_RE.test(banking.accountNumber)) {
+      errors.accountNumber = "Account number must be 6-16 digits";
+    }
+    requireField(errors, "branchCode", banking.branchCode);
+    if (banking.branchCode && !BRANCH_CODE_RE.test(banking.branchCode)) {
+      errors.branchCode = "Branch code must be exactly 6 digits";
+    }
+    requireField(errors, "accountType", banking.accountType, "Select an account type");
+  }
   return errors;
 }
 

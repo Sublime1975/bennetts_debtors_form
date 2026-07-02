@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
+import { AddressField } from "@/components/ui/AddressField";
 import { CheckboxField } from "@/components/ui/CheckboxField";
 import { useFormState } from "@/lib/form-context";
 import { validateContact } from "@/lib/validation";
@@ -46,12 +47,12 @@ export function ContactDetailsStep() {
         onChange={(e) => updateSection("contact", { phone: e.target.value })}
         error={errors.phone}
       />
-      <Field
+      <AddressField
+        id="physicalAddress"
         label="Physical address"
-        name="physicalAddress"
         required
         value={contact.physicalAddress}
-        onChange={(e) => updateSection("contact", { physicalAddress: e.target.value })}
+        onChange={(value) => updateSection("contact", { physicalAddress: value })}
         error={errors.physicalAddress}
       />
       <CheckboxField
@@ -63,11 +64,11 @@ export function ContactDetailsStep() {
       <AnimatePresence>
         {!contact.postalSameAsPhysical && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-            <Field
+            <AddressField
+              id="postalAddress"
               label="Postal address"
-              name="postalAddress"
               value={contact.postalAddress}
-              onChange={(e) => updateSection("contact", { postalAddress: e.target.value })}
+              onChange={(value) => updateSection("contact", { postalAddress: value })}
             />
           </motion.div>
         )}

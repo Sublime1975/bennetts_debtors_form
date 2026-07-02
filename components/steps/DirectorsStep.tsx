@@ -2,6 +2,7 @@
 
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
+import { AddressField } from "@/components/ui/AddressField";
 import { FileDropzone } from "@/components/ui/FileDropzone";
 import { useFormState } from "@/lib/form-context";
 import { validateDirectors } from "@/lib/validation";
@@ -52,15 +53,19 @@ export function DirectorsStep() {
               <Field
                 label="SA ID number"
                 required
+                inputMode="numeric"
+                maxLength={13}
+                placeholder="13 digits"
                 value={director.idNumber}
-                onChange={(e) => updateDirector(index, { idNumber: e.target.value })}
+                onChange={(e) => updateDirector(index, { idNumber: e.target.value.replace(/\D/g, "").slice(0, 13) })}
                 error={errors[`directors.${index}.idNumber`]}
               />
-              <Field
+              <AddressField
+                id={`director-${index}-address`}
                 label="Residential address"
                 required
                 value={director.residentialAddress}
-                onChange={(e) => updateDirector(index, { residentialAddress: e.target.value })}
+                onChange={(value) => updateDirector(index, { residentialAddress: value })}
                 error={errors[`directors.${index}.residentialAddress`]}
               />
               <FileDropzone

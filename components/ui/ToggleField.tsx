@@ -4,9 +4,16 @@ interface ToggleFieldProps {
   onChange: (value: boolean) => void;
   error?: string;
   required?: boolean;
+  trueLabel?: string;
+  falseLabel?: string;
 }
 
-export function ToggleField({ label, value, onChange, error, required }: ToggleFieldProps) {
+export function ToggleField({ label, value, onChange, error, required, trueLabel = "Yes", falseLabel = "No" }: ToggleFieldProps) {
+  const options: [string, boolean][] = [
+    [falseLabel, false],
+    [trueLabel, true],
+  ];
+
   return (
     <div>
       <span className="font-body text-xs tracking-wide text-muted">
@@ -14,12 +21,11 @@ export function ToggleField({ label, value, onChange, error, required }: ToggleF
         {required && <span style={{ color: "#E3B679" }}> *</span>}
       </span>
       <div className="mt-2 flex gap-2 rounded-xl p-1" style={{ background: "rgba(255,255,255,0.04)" }}>
-        {(["Yes", "No"] as const).map((label2, i) => {
-          const optionValue = i === 0;
+        {options.map(([optionLabel, optionValue]) => {
           const selected = value === optionValue;
           return (
             <button
-              key={label2}
+              key={optionLabel}
               type="button"
               onClick={() => onChange(optionValue)}
               className="focus-copper flex-1 rounded-lg py-2.5 text-sm font-body transition-all duration-200"
@@ -29,7 +35,7 @@ export function ToggleField({ label, value, onChange, error, required }: ToggleF
               }}
               aria-pressed={selected}
             >
-              {label2}
+              {optionLabel}
             </button>
           );
         })}

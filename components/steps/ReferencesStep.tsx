@@ -21,40 +21,9 @@ export function ReferencesStep() {
   };
 
   return (
-    <StepShell title="Trade & bank references" description="Used to verify creditworthiness." onNext={handleNext}>
-      <p className="font-body text-xs tracking-wide uppercase text-muted">Bank reference</p>
-      <Field
-        label="Bank name"
-        required
-        value={references.bankName}
-        onChange={(e) => updateSection("references", { bankName: e.target.value })}
-        error={errors.bankName}
-      />
-      <Field
-        label="Branch"
-        required
-        value={references.bankBranch}
-        onChange={(e) => updateSection("references", { bankBranch: e.target.value })}
-        error={errors.bankBranch}
-      />
-      <Field
-        label="Bank contact person"
-        required
-        value={references.bankContactPerson}
-        onChange={(e) => updateSection("references", { bankContactPerson: e.target.value })}
-        error={errors.bankContactPerson}
-      />
-      <Field
-        label="Bank contact telephone"
-        type="tel"
-        required
-        value={references.bankContactTel}
-        onChange={(e) => updateSection("references", { bankContactTel: e.target.value })}
-        error={errors.bankContactTel}
-      />
-
+    <StepShell title="Trade references" description="Two of their existing suppliers who can vouch for this business." onNext={handleNext}>
       {(["tradeRef1", "tradeRef2"] as const).map((key, i) => (
-        <div key={key} className="pt-2">
+        <div key={key} className={i > 0 ? "pt-2" : ""}>
           <p className="font-body text-xs tracking-wide uppercase text-muted mb-5">Trade reference {i + 1}</p>
           <div className="space-y-5">
             <Field

@@ -52,7 +52,7 @@ export const STEP_TITLES: Partial<Record<StepId, string>> = {
   company: "Company details",
   contact: "Contact details",
   directors: "Directors & members",
-  references: "Trade & bank references",
+  references: "Trade references",
   tax: "Tax & compliance",
   banking: "Banking details",
   documents: "Document uploads",
