@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function LogoMark() {
-  const [logoFailed, setLogoFailed] = useState(false);
+  const [logoAvailable, setLogoAvailable] = useState(false);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => setLogoAvailable(true);
+    img.onerror = () => setLogoAvailable(false);
+    img.src = "/logo.png";
+  }, []);
 
   return (
     <div className="relative flex items-center justify-center shrink-0">
@@ -19,14 +26,9 @@ export function LogoMark() {
           boxShadow: "0 0 14px 1px #C9863F55, inset 0 0 8px #C9863F22",
         }}
       >
-        {!logoFailed ? (
+        {logoAvailable ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src="/logo.png"
-            alt="Bennett's Engineering"
-            className="w-full h-full object-contain p-1"
-            onError={() => setLogoFailed(true)}
-          />
+          <img src="/logo.png" alt="Bennett's Engineering" className="w-full h-full object-contain p-1" />
         ) : (
           <span
             className="font-display text-base leading-none"
