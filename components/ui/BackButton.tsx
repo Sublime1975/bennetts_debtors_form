@@ -7,7 +7,7 @@ export function BackButton({ children, ...props }: ButtonHTMLAttributes<HTMLButt
       className="font-body text-sm flex items-center gap-1 text-muted hover:text-ink transition-colors focus-copper rounded"
       type="button"
     >
-      <span aria-hidden="true">←</span> {children ?? "Back"}
+      <span aria-hidden="true">‹</span> {children ?? "Back"}
     </button>
   );
 }

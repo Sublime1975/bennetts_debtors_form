@@ -91,7 +91,9 @@ export function DocumentUploadsStep() {
           </div>
           <div className="flex items-center justify-between mt-10">
             <BackButton onClick={goBack} />
-            <GradientButton onClick={handleNext}>Next step</GradientButton>
+            <GradientButton onClick={handleNext}>
+              Next step<span aria-hidden="true"> ›</span>
+            </GradientButton>
           </div>
         </Card>
       </div>

@@ -41,6 +41,7 @@ export function StepShell({ title, description, children, onNext, nextLabel = "N
           <BackButton onClick={goBack} />
           <GradientButton onClick={onNext} disabled={nextDisabled}>
             {nextLabel}
+            {nextLabel === "Next step" && <span aria-hidden="true"> ›</span>}
           </GradientButton>
         </div>
       </Card>

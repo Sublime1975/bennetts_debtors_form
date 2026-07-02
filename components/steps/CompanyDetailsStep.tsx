@@ -26,13 +26,15 @@ export function CompanyDetailsStep() {
         label="Trading name"
         name="tradingName"
         required
+        placeholder="e.g. Kaypega Fabrication"
         value={company.tradingName}
         onChange={(e) => updateSection("company", { tradingName: e.target.value })}
         error={errors.tradingName}
       />
       <Field
-        label="Registered company name (if different)"
+        label="Registered company name (if different from trading name)"
         name="registeredName"
+        placeholder="Leave blank if same as above"
         value={company.registeredName}
         onChange={(e) => updateSection("company", { registeredName: e.target.value })}
       />
@@ -81,14 +83,17 @@ export function CompanyDetailsStep() {
         )}
         {company.isForeignEntity === false && (
           <motion.div key="local" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-            <Field
-              label="CIPC registration number"
-              required
-              placeholder="e.g. 2020/123456/07"
-              value={company.cipcNumber}
-              onChange={(e) => updateSection("company", { cipcNumber: e.target.value })}
-              error={errors.cipcNumber}
-            />
+            <div>
+              <Field
+                label="CIPC registration number"
+                required
+                placeholder="e.g. 2024/123456/07"
+                value={company.cipcNumber}
+                onChange={(e) => updateSection("company", { cipcNumber: e.target.value })}
+                error={errors.cipcNumber}
+              />
+              <p className="mt-1.5 font-body text-xs text-muted">Format: YYYY/NNNNNN/NN as shown on your CIPC certificate</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
