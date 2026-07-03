@@ -225,6 +225,28 @@ export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export const ALLOWED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
+// Major South African banks and their universal (single, nationwide) branch
+// codes. Used to auto-fill the branch code once a bank is picked, and as a
+// safeguard against people typing a branch-specific code for a bank that
+// actually uses one universal code. Not exhaustive — smaller/mutual banks
+// aren't listed and the branch code field always stays manually editable.
+export const SA_BANKS: { name: string; universalBranchCode: string }[] = [
+  { name: "Absa Bank", universalBranchCode: "632005" },
+  { name: "African Bank", universalBranchCode: "430000" },
+  { name: "Bank Zero", universalBranchCode: "888000" },
+  { name: "Bidvest Bank", universalBranchCode: "462005" },
+  { name: "Capitec Bank", universalBranchCode: "470010" },
+  { name: "Discovery Bank", universalBranchCode: "679000" },
+  { name: "First National Bank (FNB)", universalBranchCode: "250655" },
+  { name: "Investec Bank", universalBranchCode: "580105" },
+  { name: "Mercantile Bank", universalBranchCode: "450905" },
+  { name: "Nedbank", universalBranchCode: "198765" },
+  { name: "Sasfin Bank", universalBranchCode: "683000" },
+  { name: "Standard Bank", universalBranchCode: "051001" },
+  { name: "TymeBank", universalBranchCode: "678910" },
+  { name: "Ubank", universalBranchCode: "431010" },
+];
+
 export const STEP_TITLES: Partial<Record<StepId, string>> = {
   company: "Company details",
   contact: "Contact details",

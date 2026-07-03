@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
+import { BankNameField } from "@/components/ui/BankNameField";
 import { SelectField } from "@/components/ui/SelectField";
 import { CheckboxField } from "@/components/ui/CheckboxField";
 import { useFormState } from "@/lib/form-context";
@@ -36,14 +37,26 @@ export function BankingDetailsStep() {
         onChange={(e) => updateSection("banking", { accountHolder: e.target.value })}
         error={errors.accountHolder}
       />
-      <Field
-        label="Bank name"
-        required
-        placeholder={banking.isForeignBank ? "e.g. Barclays, HSBC, Deutsche Bank" : "Start typing bank name…"}
-        value={banking.bankName}
-        onChange={(e) => updateSection("banking", { bankName: e.target.value })}
-        error={errors.bankName}
-      />
+      {banking.isForeignBank ? (
+        <Field
+          label="Bank name"
+          required
+          placeholder="e.g. Barclays, HSBC, Deutsche Bank"
+          value={banking.bankName}
+          onChange={(e) => updateSection("banking", { bankName: e.target.value })}
+          error={errors.bankName}
+        />
+      ) : (
+        <BankNameField
+          label="Bank name"
+          required
+          placeholder="Start typing bank name…"
+          value={banking.bankName}
+          onChange={(value) => updateSection("banking", { bankName: value })}
+          onSelectBank={(universalBranchCode) => updateSection("banking", { branchCode: universalBranchCode })}
+          error={errors.bankName}
+        />
+      )}
       <AnimatePresence mode="wait">
         {banking.isForeignBank ? (
           <motion.div key="foreign" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-5">
