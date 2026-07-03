@@ -32,23 +32,33 @@ export function TaxComplianceStep() {
       <AnimatePresence>
         {tax.vatRegistered && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-            <Field
-              label="VAT number"
-              required
-              value={tax.vatNumber}
-              onChange={(e) => updateSection("tax", { vatNumber: e.target.value })}
-              error={errors.vatNumber}
-            />
+            <div>
+              <Field
+                label="VAT number"
+                required
+                placeholder="e.g. 4123456789"
+                maxLength={10}
+                value={tax.vatNumber}
+                onChange={(e) => updateSection("tax", { vatNumber: e.target.value })}
+                error={errors.vatNumber}
+              />
+              <p className="mt-1.5 font-body text-xs text-muted">10 digits, always starts with 4</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-      <Field
-        label="Income tax number"
-        required
-        value={tax.incomeTaxNumber}
-        onChange={(e) => updateSection("tax", { incomeTaxNumber: e.target.value })}
-        error={errors.incomeTaxNumber}
-      />
+      <div>
+        <Field
+          label="Income tax number"
+          required
+          placeholder="e.g. 0123456789"
+          maxLength={10}
+          value={tax.incomeTaxNumber}
+          onChange={(e) => updateSection("tax", { incomeTaxNumber: e.target.value })}
+          error={errors.incomeTaxNumber}
+        />
+        <p className="mt-1.5 font-body text-xs text-muted">10 digits, starts with 0, 1, 2, 3 or 9</p>
+      </div>
       <SelectField
         label="B-BBEE level"
         required

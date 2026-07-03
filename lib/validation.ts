@@ -3,13 +3,22 @@ import { AppFormData, Director, FieldErrors, UploadedFileMeta } from "./types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SA_PHONE_RE = /^(\+27|0)[1-9]\d{8}$/;
+// Loose E.164-style check for contacts/banks outside South Africa.
+const GENERIC_PHONE_RE = /^\+?[1-9]\d{7,14}$/;
 const SA_ID_RE = /^\d{13}$/;
-const VAT_RE = /^\d{10}$/;
-const INCOME_TAX_RE = /^\d{10}$/;
+// SA VAT numbers are always exactly 10 digits and always start with 4.
+const VAT_RE = /^4\d{9}$/;
+// SA income tax reference numbers are 10 digits, starting with 0, 1, 2, 3 or 9.
+const INCOME_TAX_RE = /^[01239]\d{9}$/;
 const CIPC_RE = /^\d{4}\/\d{6}\/\d{2}$/;
 const BRANCH_CODE_RE = /^\d{6}$/;
 const ACCOUNT_NUMBER_RE = /^\d{6,16}$/;
 const SWIFT_RE = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
+
+function isPhoneValid(phone: string, isLocal: boolean): boolean {
+  const stripped = phone.replace(/[\s-]/g, "");
+  return isLocal ? SA_PHONE_RE.test(stripped) : SA_PHONE_RE.test(stripped) || GENERIC_PHONE_RE.test(stripped);
+}
 
 function requireField(errors: FieldErrors, key: string, value: string, message = "This field is required") {
   if (!value || value.trim() === "") {
@@ -62,8 +71,9 @@ export function validateContact(data: AppFormData): FieldErrors {
     errors.email = "Enter a valid email address";
   }
   requireField(errors, "phone", contact.phone);
-  if (contact.phone && !SA_PHONE_RE.test(contact.phone.replace(/\s/g, ""))) {
-    errors.phone = "Enter a valid South African phone number";
+  const isLocalContact = contact.country === "South Africa" || contact.country === "";
+  if (contact.phone && !isPhoneValid(contact.phone, isLocalContact)) {
+    errors.phone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
   }
   requireField(errors, "physicalAddress", contact.physicalAddress);
   requireField(errors, "country", contact.country, "Select a country");
@@ -75,6 +85,9 @@ export function validateContact(data: AppFormData): FieldErrors {
       errors.accountsEmail = "Enter a valid email address";
     }
     requireField(errors, "accountsPhone", contact.accountsPhone);
+    if (contact.accountsPhone && !isPhoneValid(contact.accountsPhone, isLocalContact)) {
+      errors.accountsPhone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
+    }
   }
   return errors;
 }
@@ -114,6 +127,9 @@ export function validateReferences(data: AppFormData): FieldErrors {
     requireField(errors, `${key}.companyName`, ref.companyName);
     requireField(errors, `${key}.contactPerson`, ref.contactPerson);
     requireField(errors, `${key}.phone`, ref.phone);
+    if (ref.phone && !isPhoneValid(ref.phone, false)) {
+      errors[`${key}.phone`] = "Enter a valid phone number";
+    }
     requireField(errors, `${key}.email`, ref.email);
     if (ref.email && !EMAIL_RE.test(ref.email)) {
       errors[`${key}.email`] = "Enter a valid email address";
@@ -131,12 +147,12 @@ export function validateTax(data: AppFormData): FieldErrors {
   if (tax.vatRegistered) {
     requireField(errors, "vatNumber", tax.vatNumber);
     if (tax.vatNumber && !VAT_RE.test(tax.vatNumber)) {
-      errors.vatNumber = "VAT number must be exactly 10 digits";
+      errors.vatNumber = "VAT number must be exactly 10 digits and start with 4";
     }
   }
   requireField(errors, "incomeTaxNumber", tax.incomeTaxNumber);
   if (tax.incomeTaxNumber && !INCOME_TAX_RE.test(tax.incomeTaxNumber)) {
-    errors.incomeTaxNumber = "Income tax number must be exactly 10 digits";
+    errors.incomeTaxNumber = "Income tax number must be 10 digits, starting with 0, 1, 2, 3 or 9";
   }
   requireField(errors, "bbeeLevel", tax.bbeeLevel, "Select a B-BBEE level");
   return errors;
@@ -152,7 +168,7 @@ export function validateBanking(data: AppFormData): FieldErrors {
   if (banking.isForeignBank) {
     requireField(errors, "bankCountry", banking.bankCountry);
     requireField(errors, "swiftCode", banking.swiftCode);
-    if (banking.swiftCode && !SWIFT_RE.test(banking.swiftCode.toUpperCase())) {
+    if (banking.swiftCode && !SWIFT_RE.test(banking.swiftCode.replace(/\s/g, "").toUpperCase())) {
       errors.swiftCode = "Enter a valid 8 or 11 character SWIFT/BIC code";
     }
   } else {
@@ -196,6 +212,18 @@ export function validateCredit(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { credit } = data;
   requireField(errors, "creditLimitRequested", credit.creditLimitRequested);
+  if (credit.creditLimitRequested) {
+    const limit = Number(credit.creditLimitRequested);
+    if (!Number.isFinite(limit) || limit <= 0) {
+      errors.creditLimitRequested = "Enter a valid credit limit greater than 0";
+    }
+  }
+  if (credit.estimatedMonthlyPurchase) {
+    const volume = Number(credit.estimatedMonthlyPurchase);
+    if (!Number.isFinite(volume) || volume < 0) {
+      errors.estimatedMonthlyPurchase = "Enter a valid amount";
+    }
+  }
   if (!credit.suretyshipAgreement) {
     errors.suretyshipAgreement = "This confirmation is required to proceed";
   }
@@ -207,6 +235,13 @@ export function validateDeclarationAndConsent(data: AppFormData): FieldErrors {
   const { declaration, consent } = data;
   requireField(errors, "signatureFullName", declaration.signatureFullName, "Type your full name to sign");
   requireField(errors, "signatureDate", declaration.signatureDate, "Select the date");
+  if (declaration.signatureDate) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (new Date(declaration.signatureDate) > today) {
+      errors.signatureDate = "Signature date cannot be in the future";
+    }
+  }
   if (!consent.accurateInfo) {
     errors.accurateInfo = "You must confirm the information is accurate";
   }

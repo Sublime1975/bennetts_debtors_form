@@ -33,6 +33,7 @@ export function CreditTermsStep() {
         placeholder="Optional"
         value={credit.estimatedMonthlyPurchase}
         onChange={(e) => updateSection("credit", { estimatedMonthlyPurchase: e.target.value })}
+        error={errors.estimatedMonthlyPurchase}
       />
       <Field
         label="Payment terms requested"
