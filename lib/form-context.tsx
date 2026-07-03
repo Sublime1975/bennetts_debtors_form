@@ -9,6 +9,9 @@ const blankDirector = (): Director => ({
   idNumber: "",
   residentialAddress: "",
   idDocument: null,
+  suretyshipAgreed: false,
+  suretyshipSignature: "",
+  suretyshipDate: "",
 });
 
 const initialFormData: AppFormData = {
@@ -62,13 +65,11 @@ const initialFormData: AppFormData = {
     sarsNoticeOfRegistration: null,
     proofOfAddress: null,
     bankConfirmationLetter: null,
-    suretyshipDoc: null,
   },
   credit: {
     creditLimitRequested: "",
     estimatedMonthlyPurchase: "",
     paymentTermsRequested: "",
-    suretyshipAgreement: false,
   },
   declaration: {
     signatureFullName: "",

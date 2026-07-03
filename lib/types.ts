@@ -34,6 +34,9 @@ export interface Director {
   idNumber: string;
   residentialAddress: string;
   idDocument: UploadedFileMeta | null;
+  suretyshipAgreed: boolean;
+  suretyshipSignature: string;
+  suretyshipDate: string;
 }
 
 export interface TradeReference {
@@ -97,14 +100,12 @@ export interface DocumentsDetails {
   sarsNoticeOfRegistration: UploadedFileMeta | null;
   proofOfAddress: UploadedFileMeta | null;
   bankConfirmationLetter: UploadedFileMeta | null;
-  suretyshipDoc: UploadedFileMeta | null;
 }
 
 export interface CreditDetails {
   creditLimitRequested: string;
   estimatedMonthlyPurchase: string;
   paymentTermsRequested: string;
-  suretyshipAgreement: boolean;
 }
 
 export interface DeclarationDetails {
@@ -140,6 +141,7 @@ export type StepId =
   | "banking"
   | "documents"
   | "credit"
+  | "suretyship"
   | "review"
   | "confirmation";
 

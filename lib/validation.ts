@@ -204,7 +204,6 @@ export function validateDocuments(data: AppFormData): FieldErrors {
   validateFileField(errors, "sarsNoticeOfRegistration", documents.sarsNoticeOfRegistration, true);
   validateFileField(errors, "proofOfAddress", documents.proofOfAddress, true);
   validateFileField(errors, "bankConfirmationLetter", documents.bankConfirmationLetter, true);
-  validateFileField(errors, "suretyshipDoc", documents.suretyshipDoc, false);
   return errors;
 }
 
@@ -224,9 +223,33 @@ export function validateCredit(data: AppFormData): FieldErrors {
       errors.estimatedMonthlyPurchase = "Enter a valid amount";
     }
   }
-  if (!credit.suretyshipAgreement) {
-    errors.suretyshipAgreement = "This confirmation is required to proceed";
-  }
+  return errors;
+}
+
+function isSameName(a: string, b: string): boolean {
+  const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+  return normalize(a) === normalize(b) && normalize(a).length > 0;
+}
+
+export function validateSuretyship(directors: Director[]): FieldErrors {
+  const errors: FieldErrors = {};
+  directors.forEach((director, index) => {
+    if (!director.suretyshipAgreed) {
+      errors[`suretyship.${index}.agreed`] = "This director/member must agree to the suretyship terms";
+    }
+    requireField(errors, `suretyship.${index}.signature`, director.suretyshipSignature, "Type your full name to sign");
+    if (director.suretyshipSignature && !isSameName(director.suretyshipSignature, director.fullName)) {
+      errors[`suretyship.${index}.signature`] = "Signature must match this director's full name exactly";
+    }
+    requireField(errors, `suretyship.${index}.date`, director.suretyshipDate, "Select the date");
+    if (director.suretyshipDate) {
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      if (new Date(director.suretyshipDate) > today) {
+        errors[`suretyship.${index}.date`] = "Signature date cannot be in the future";
+      }
+    }
+  });
   return errors;
 }
 

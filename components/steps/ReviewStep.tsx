@@ -89,7 +89,6 @@ export function ReviewStep() {
     ["SARS notice of registration", documents.sarsNoticeOfRegistration?.name ?? ""],
     ["Proof of address", documents.proofOfAddress?.name ?? ""],
     ["Bank confirmation letter", documents.bankConfirmationLetter?.name ?? ""],
-    ["Suretyship (optional)", documents.suretyshipDoc?.name ?? ""],
   ];
 
   return (
@@ -192,6 +191,18 @@ export function ReviewStep() {
               ["Estimated monthly purchases", credit.estimatedMonthlyPurchase ? `R${credit.estimatedMonthlyPurchase}` : ""],
               ["Payment terms requested", credit.paymentTermsRequested],
             ]}
+          />
+          <ReviewGroup
+            title="Suretyship agreement"
+            stepId="suretyship"
+            onEdit={goToStep}
+            rows={directors.map(
+              (d, i) =>
+                [
+                  `Surety ${i + 1}${d.fullName ? ` — ${d.fullName}` : ""}`,
+                  d.suretyshipAgreed && d.suretyshipSignature ? `Signed ${d.suretyshipDate || ""}`.trim() : "Not signed",
+                ] as [string, string]
+            )}
           />
         </div>
 

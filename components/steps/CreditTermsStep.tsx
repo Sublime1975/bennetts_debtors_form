@@ -2,7 +2,6 @@
 
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
-import { CheckboxField } from "@/components/ui/CheckboxField";
 import { useFormState } from "@/lib/form-context";
 import { validateCredit } from "@/lib/validation";
 
@@ -40,13 +39,6 @@ export function CreditTermsStep() {
         placeholder="e.g. 30 days from statement"
         value={credit.paymentTermsRequested}
         onChange={(e) => updateSection("credit", { paymentTermsRequested: e.target.value })}
-      />
-      <CheckboxField
-        id="suretyshipAgreement"
-        label="A director/member agrees to sign personal suretyship for this credit facility if required"
-        checked={credit.suretyshipAgreement}
-        onChange={(checked) => updateSection("credit", { suretyshipAgreement: checked })}
-        error={errors.suretyshipAgreement}
       />
     </StepShell>
   );

@@ -11,6 +11,7 @@ import { TaxComplianceStep } from "@/components/steps/TaxComplianceStep";
 import { BankingDetailsStep } from "@/components/steps/BankingDetailsStep";
 import { DocumentUploadsStep } from "@/components/steps/DocumentUploadsStep";
 import { CreditTermsStep } from "@/components/steps/CreditTermsStep";
+import { SuretyshipStep } from "@/components/steps/SuretyshipStep";
 import { ReviewStep } from "@/components/steps/ReviewStep";
 import { ConfirmationStep } from "@/components/steps/ConfirmationStep";
 import { useFormState } from "@/lib/form-context";
@@ -26,6 +27,7 @@ const STEP_COMPONENTS: Record<StepId, () => JSX.Element> = {
   banking: BankingDetailsStep,
   documents: DocumentUploadsStep,
   credit: CreditTermsStep,
+  suretyship: SuretyshipStep,
   review: ReviewStep,
   confirmation: ConfirmationStep,
 };

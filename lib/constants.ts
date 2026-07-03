@@ -10,6 +10,7 @@ export const STEP_ORDER: StepId[] = [
   "banking",
   "documents",
   "credit",
+  "suretyship",
   "review",
   "confirmation",
 ];
@@ -25,6 +26,7 @@ export const DATA_STEPS: StepId[] = [
   "banking",
   "documents",
   "credit",
+  "suretyship",
 ];
 
 // South African entity types (CC and Pty Ltd are SA-specific legal structures).
@@ -256,5 +258,6 @@ export const STEP_TITLES: Partial<Record<StepId, string>> = {
   banking: "Banking details",
   documents: "Document uploads",
   credit: "Credit application terms",
+  suretyship: "Suretyship agreement",
   review: "Review & declaration",
 };

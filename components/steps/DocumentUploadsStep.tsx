@@ -81,13 +81,6 @@ export function DocumentUploadsStep() {
               onChange={(meta) => updateSection("documents", { bankConfirmationLetter: meta })}
               error={errors.bankConfirmationLetter}
             />
-            <FileDropzone
-              id="suretyshipDoc"
-              label="Signed Suretyship (optional)"
-              value={documents.suretyshipDoc}
-              onChange={(meta) => updateSection("documents", { suretyshipDoc: meta })}
-              error={errors.suretyshipDoc}
-            />
           </div>
           <div className="flex items-center justify-between mt-10">
             <BackButton onClick={goBack} />
