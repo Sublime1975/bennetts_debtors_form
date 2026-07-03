@@ -27,7 +27,19 @@ export const DATA_STEPS: StepId[] = [
   "credit",
 ];
 
+// South African entity types (CC and Pty Ltd are SA-specific legal structures).
 export const ENTITY_TYPES: EntityType[] = ["Pty Ltd", "CC", "Sole Proprietor", "Partnership", "Trust"];
+
+// Generic structures for entities registered outside South Africa — CC and Pty Ltd
+// don't apply here since those are SA-specific company types.
+export const FOREIGN_ENTITY_TYPES: EntityType[] = [
+  "Limited Company (Ltd/LLC)",
+  "Public Company",
+  "Sole Proprietor",
+  "Partnership",
+  "Trust",
+  "Other",
+];
 
 export const BBEE_LEVELS: BbeeLevel[] = [
   "Level 1",

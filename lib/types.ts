@@ -1,4 +1,12 @@
-export type EntityType = "Pty Ltd" | "CC" | "Sole Proprietor" | "Partnership" | "Trust";
+export type EntityType =
+  | "Pty Ltd"
+  | "CC"
+  | "Sole Proprietor"
+  | "Partnership"
+  | "Trust"
+  | "Limited Company (Ltd/LLC)"
+  | "Public Company"
+  | "Other";
 
 export type BbeeLevel =
   | "Level 1"

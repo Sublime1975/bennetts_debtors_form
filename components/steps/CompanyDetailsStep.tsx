@@ -7,7 +7,7 @@ import { SelectField } from "@/components/ui/SelectField";
 import { ToggleField } from "@/components/ui/ToggleField";
 import { useFormState } from "@/lib/form-context";
 import { validateCompany } from "@/lib/validation";
-import { ENTITY_TYPES, COUNTRIES } from "@/lib/constants";
+import { ENTITY_TYPES, FOREIGN_ENTITY_TYPES, COUNTRIES } from "@/lib/constants";
 import { EntityType } from "@/lib/types";
 
 export function CompanyDetailsStep() {
@@ -38,24 +38,24 @@ export function CompanyDetailsStep() {
         value={company.registeredName}
         onChange={(e) => updateSection("company", { registeredName: e.target.value })}
       />
-      <SelectField
-        label="Entity type"
-        name="entityType"
-        required
-        placeholder="Select entity type"
-        options={ENTITY_TYPES}
-        value={company.entityType}
-        onChange={(e) => updateSection("company", { entityType: e.target.value as EntityType })}
-        error={errors.entityType}
-      />
       <ToggleField
         label="Local or foreign entity?"
         required
         trueLabel="Foreign"
         falseLabel="Local"
         value={company.isForeignEntity}
-        onChange={(value) => updateSection("company", { isForeignEntity: value })}
+        onChange={(value) => updateSection("company", { isForeignEntity: value, entityType: "" })}
         error={errors.isForeignEntity}
+      />
+      <SelectField
+        label="Entity type"
+        name="entityType"
+        required
+        placeholder="Select entity type"
+        options={company.isForeignEntity ? FOREIGN_ENTITY_TYPES : ENTITY_TYPES}
+        value={company.entityType}
+        onChange={(e) => updateSection("company", { entityType: e.target.value as EntityType })}
+        error={errors.entityType}
       />
       <AnimatePresence mode="wait">
         {company.isForeignEntity === true && (
