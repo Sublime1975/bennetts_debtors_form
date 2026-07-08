@@ -46,7 +46,8 @@ export function WelcomeStep() {
             Application
           </h1>
           <p className="font-body text-sm mb-10 max-w-[280px] text-muted">
-            Open a credit account with Bennett&apos;s Engineering. Tell us about your business.
+            Open a credit account with Bennett&apos;s Engineering — a trusted engineering partner since 1957. Tell us
+            about your business to get started.
           </p>
           <GradientButton full onClick={() => goNext()}>
             Start application
