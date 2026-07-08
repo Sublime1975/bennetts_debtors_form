@@ -4,6 +4,7 @@ import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
 import { useFormState } from "@/lib/form-context";
 import { validateReferences } from "@/lib/validation";
+import { formatPhoneNumber } from "@/lib/phone";
 import { TradeReference } from "@/lib/types";
 
 export function ReferencesStep() {
@@ -46,6 +47,14 @@ export function ReferencesStep() {
               required
               value={references[key].phone}
               onChange={(e) => updateTradeRef(key, { phone: e.target.value })}
+              onBlur={() => {
+                // Trade references have no country field of their own; treat as a local SA
+                // number for uniform +27 formatting unless the supplier typed an explicit
+                // country code (leading +), which we preserve as-is.
+                const isLocal = !references[key].phone.trim().startsWith("+");
+                const formatted = formatPhoneNumber(references[key].phone, isLocal);
+                if (formatted !== references[key].phone) updateTradeRef(key, { phone: formatted });
+              }}
               error={errors[`${key}.phone`]}
             />
             <Field
