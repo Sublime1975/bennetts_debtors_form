@@ -43,7 +43,7 @@ export function SuretyshipStep() {
               className="rounded-xl p-4 mb-5 font-body text-xs leading-relaxed text-muted"
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
-              <p className="mb-2">
+              <p className="mb-2" style={director.suretyshipDeclined ? { textDecoration: "line-through", opacity: 0.6 } : undefined}>
                 In consideration of Bennett&apos;s Engineering agreeing to grant credit facilities to {businessName}, I,{" "}
                 {director.fullName || "the undersigned director/member"}
                 {director.idNumber ? ` (ID no. ${director.idNumber})` : ""}, hereby bind myself as surety for and
@@ -62,9 +62,24 @@ export function SuretyshipStep() {
                 id={`suretyship-${index}-agreed`}
                 label="I have read and agree to be personally bound by this suretyship."
                 checked={director.suretyshipAgreed}
-                onChange={(checked) => updateDirector(index, { suretyshipAgreed: checked })}
+                onChange={(checked) =>
+                  updateDirector(index, { suretyshipAgreed: checked, suretyshipDeclined: checked ? false : director.suretyshipDeclined })
+                }
                 error={errors[`suretyship.${index}.agreed`]}
               />
+              <CheckboxField
+                id={`suretyship-${index}-declined`}
+                label="I have read and prefer not to be personally bound by this suretyship."
+                checked={director.suretyshipDeclined}
+                onChange={(checked) =>
+                  updateDirector(index, { suretyshipDeclined: checked, suretyshipAgreed: checked ? false : director.suretyshipAgreed })
+                }
+              />
+              {director.suretyshipDeclined && (
+                <p className="font-body text-xs" style={{ color: "#E3B679" }}>
+                  Declining to sign as surety may limit the credit facility we&apos;re able to offer this business.
+                </p>
+              )}
               <Field
                 label="Full name (signature)"
                 required

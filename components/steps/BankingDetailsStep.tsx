@@ -28,7 +28,18 @@ export function BankingDetailsStep() {
         id="isForeignBank"
         label="My bank account is outside South Africa"
         checked={banking.isForeignBank}
-        onChange={(checked) => updateSection("banking", { isForeignBank: checked })}
+        onChange={(checked) =>
+          updateSection("banking", {
+            isForeignBank: checked,
+            bankName: "",
+            branchCode: "",
+            swiftCode: "",
+            bankCountry: "",
+            bankAddress: "",
+            accountNumber: "",
+            accountType: "",
+          })
+        }
       />
       <Field
         label="Account holder name"
@@ -38,33 +49,6 @@ export function BankingDetailsStep() {
         onChange={(e) => updateSection("banking", { accountHolder: e.target.value })}
         error={errors.accountHolder}
       />
-      {banking.isForeignBank ? (
-        <div>
-          <ForeignBankField
-            label="Bank name"
-            required
-            placeholder="e.g. Barclays, HSBC, Deutsche Bank"
-            value={banking.bankName}
-            onChange={(value) => updateSection("banking", { bankName: value })}
-            onSelectBank={(swift) => updateSection("banking", { swiftCode: swift })}
-            error={errors.bankName}
-          />
-          <p className="mt-1.5 font-body text-xs text-muted">
-            Autofills SWIFT/BIC for major international banks — unlike SA branch codes there&apos;s no single universal
-            standard, so double-check against your bank statement.
-          </p>
-        </div>
-      ) : (
-        <BankNameField
-          label="Bank name"
-          required
-          placeholder="Start typing bank name…"
-          value={banking.bankName}
-          onChange={(value) => updateSection("banking", { bankName: value })}
-          onSelectBank={(universalBranchCode) => updateSection("banking", { branchCode: universalBranchCode })}
-          error={errors.bankName}
-        />
-      )}
       <AnimatePresence mode="wait">
         {banking.isForeignBank ? (
           <motion.div key="foreign" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-5">
@@ -77,6 +61,21 @@ export function BankingDetailsStep() {
               onChange={(e) => updateSection("banking", { bankCountry: e.target.value })}
               error={errors.bankCountry}
             />
+            <div>
+              <ForeignBankField
+                label="Bank name"
+                required
+                placeholder="e.g. Barclays, HSBC, Deutsche Bank"
+                value={banking.bankName}
+                onChange={(value) => updateSection("banking", { bankName: value })}
+                onSelectBank={(swift) => updateSection("banking", { swiftCode: swift })}
+                error={errors.bankName}
+              />
+              <p className="mt-1.5 font-body text-xs text-muted">
+                Autofills SWIFT/BIC for major international banks — unlike SA branch codes there&apos;s no single
+                universal standard, so double-check against your bank statement.
+              </p>
+            </div>
             <div>
               <Field
                 label="IBAN / Account number"
@@ -107,6 +106,15 @@ export function BankingDetailsStep() {
           </motion.div>
         ) : (
           <motion.div key="local" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-5">
+            <BankNameField
+              label="Bank name"
+              required
+              placeholder="Start typing bank name…"
+              value={banking.bankName}
+              onChange={(value) => updateSection("banking", { bankName: value })}
+              onSelectBank={(universalBranchCode) => updateSection("banking", { branchCode: universalBranchCode })}
+              error={errors.bankName}
+            />
             <div>
               <Field
                 label="Branch code"

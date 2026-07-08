@@ -53,24 +53,14 @@ export function DocumentUploadsStep() {
               error={errors.cipcCertificate}
             />
             {tax.vatRegistered && (
-              <>
-                <FileDropzone
-                  id="vatCertificate"
-                  label="VAT Certificate"
-                  required
-                  value={documents.vatCertificate}
-                  onChange={(meta) => updateSection("documents", { vatCertificate: meta })}
-                  error={errors.vatCertificate}
-                />
-                <FileDropzone
-                  id="vatNoticeOfRegistration"
-                  label="VAT Notice of Registration"
-                  required
-                  value={documents.vatNoticeOfRegistration}
-                  onChange={(meta) => updateSection("documents", { vatNoticeOfRegistration: meta })}
-                  error={errors.vatNoticeOfRegistration}
-                />
-              </>
+              <FileDropzone
+                id="vatNoticeOfRegistration"
+                label="VAT Notice of Registration"
+                required
+                value={documents.vatNoticeOfRegistration}
+                onChange={(meta) => updateSection("documents", { vatNoticeOfRegistration: meta })}
+                error={errors.vatNoticeOfRegistration}
+              />
             )}
             {!tax.vatRegistered && (
               <FileDropzone

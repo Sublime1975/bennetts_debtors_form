@@ -10,6 +10,7 @@ const blankDirector = (): Director => ({
   residentialAddress: "",
   idDocument: null,
   suretyshipAgreed: false,
+  suretyshipDeclined: false,
   suretyshipSignature: "",
   suretyshipDate: "",
   suretyshipDrawnSignature: null,
@@ -65,7 +66,6 @@ const initialFormData: AppFormData = {
   },
   documents: {
     cipcCertificate: null,
-    vatCertificate: null,
     vatNoticeOfRegistration: null,
     sarsNoticeOfRegistration: null,
     bbeeCertificate: null,
@@ -83,6 +83,7 @@ const initialFormData: AppFormData = {
   consent: {
     accurateInfo: false,
     popiConsent: false,
+    termsAndConditions: false,
   },
 };
 

@@ -27,6 +27,7 @@ export interface Director {
   residentialAddress: string;
   idDocument: UploadedFileMeta | null;
   suretyshipAgreed: boolean;
+  suretyshipDeclined: boolean;
   suretyshipSignature: string;
   suretyshipDate: string;
   suretyshipDrawnSignature: string | null;
@@ -92,7 +93,6 @@ export interface BankingDetails {
 
 export interface DocumentsDetails {
   cipcCertificate: UploadedFileMeta | null;
-  vatCertificate: UploadedFileMeta | null;
   vatNoticeOfRegistration: UploadedFileMeta | null;
   sarsNoticeOfRegistration: UploadedFileMeta | null;
   bbeeCertificate: UploadedFileMeta | null;
@@ -113,6 +113,7 @@ export interface DeclarationDetails {
 export interface ConsentDetails {
   accurateInfo: boolean;
   popiConsent: boolean;
+  termsAndConditions: boolean;
 }
 
 export interface AppFormData {

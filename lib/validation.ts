@@ -223,7 +223,6 @@ export function validateDocuments(data: AppFormData): FieldErrors {
   const cipcRequired = !company.isForeignEntity && (company.entityType === "(Pty) Ltd" || company.entityType === "CC");
   const bbeeRequired = !!tax.bbeeLevel && tax.bbeeLevel !== "Exempt" && tax.bbeeLevel !== "Non-compliant";
   validateFileField(errors, "cipcCertificate", documents.cipcCertificate, cipcRequired);
-  validateFileField(errors, "vatCertificate", documents.vatCertificate, !!tax.vatRegistered);
   validateFileField(errors, "vatNoticeOfRegistration", documents.vatNoticeOfRegistration, !!tax.vatRegistered);
   validateFileField(errors, "sarsNoticeOfRegistration", documents.sarsNoticeOfRegistration, !tax.vatRegistered);
   validateFileField(errors, "bbeeCertificate", documents.bbeeCertificate, bbeeRequired);
@@ -261,8 +260,8 @@ function isSameName(a: string, b: string): boolean {
 export function validateSuretyship(directors: Director[]): FieldErrors {
   const errors: FieldErrors = {};
   directors.forEach((director, index) => {
-    if (!director.suretyshipAgreed) {
-      errors[`suretyship.${index}.agreed`] = "This director/member must agree to the suretyship terms";
+    if (!director.suretyshipAgreed && !director.suretyshipDeclined) {
+      errors[`suretyship.${index}.agreed`] = "This director/member must agree to or decline the suretyship";
     }
     requireField(errors, `suretyship.${index}.signature`, director.suretyshipSignature, "Type your full name to sign");
     if (director.suretyshipSignature && !isSameName(director.suretyshipSignature, director.fullName)) {
@@ -297,6 +296,9 @@ export function validateDeclarationAndConsent(data: AppFormData): FieldErrors {
   }
   if (!consent.popiConsent) {
     errors.popiConsent = "You must consent to POPI Act processing";
+  }
+  if (!consent.termsAndConditions) {
+    errors.termsAndConditions = "You must agree to the terms and conditions of sale";
   }
   return errors;
 }

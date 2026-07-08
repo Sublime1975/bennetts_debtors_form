@@ -86,7 +86,6 @@ export function ReviewStep() {
 
   const documentRows: [string, string][] = [
     ["CIPC certificate", documents.cipcCertificate?.name ?? ""],
-    ["VAT certificate", documents.vatCertificate?.name ?? ""],
     [
       tax.vatRegistered ? "VAT notice of registration" : "SARS notice of registration",
       tax.vatRegistered ? documents.vatNoticeOfRegistration?.name ?? "" : documents.sarsNoticeOfRegistration?.name ?? "",
@@ -218,13 +217,12 @@ export function ReviewStep() {
             title="Suretyship agreement"
             stepId="suretyship"
             onEdit={goToStep}
-            rows={directors.map(
-              (d, i) =>
-                [
-                  `Surety ${i + 1}${d.fullName ? ` — ${d.fullName}` : ""}`,
-                  d.suretyshipAgreed && d.suretyshipSignature ? `Signed ${d.suretyshipDate || ""}`.trim() : "Not signed",
-                ] as [string, string]
-            )}
+            rows={directors.map((d, i) => {
+              let status = "Not signed";
+              if (d.suretyshipDeclined && d.suretyshipSignature) status = `Declined ${d.suretyshipDate || ""}`.trim();
+              else if (d.suretyshipAgreed && d.suretyshipSignature) status = `Signed ${d.suretyshipDate || ""}`.trim();
+              return [`Surety ${i + 1}${d.fullName ? ` — ${d.fullName}` : ""}`, status] as [string, string];
+            })}
           />
         </div>
 
@@ -260,11 +258,21 @@ export function ReviewStep() {
             onChange={(checked) => updateSection("consent", { popiConsent: checked })}
             error={errors.popiConsent}
           />
+          <CheckboxField
+            id="termsAndConditions"
+            label="I agree to Bennett's Engineering's terms and conditions of sale."
+            checked={consent.termsAndConditions}
+            onChange={(checked) => updateSection("consent", { termsAndConditions: checked })}
+            error={errors.termsAndConditions}
+          />
         </div>
 
         <div className="flex items-center justify-between mt-10">
           <BackButton onClick={goBack} />
-          <GradientButton onClick={handleSubmit} disabled={!consent.accurateInfo || !consent.popiConsent}>
+          <GradientButton
+            onClick={handleSubmit}
+            disabled={!consent.accurateInfo || !consent.popiConsent || !consent.termsAndConditions}
+          >
             Submit application
           </GradientButton>
         </div>

@@ -210,7 +210,8 @@ export function FileDropzone({ label, value, onChange, error, required, id }: Fi
           />
         </label>
       )}
-      {displayError && <span className="mt-1.5 block text-xs text-red-400">{displayError}</span>}
+      {value && !localError && <span className="mt-1.5 block text-xs" style={{ color: "#4ade80" }}>Document uploaded successfully</span>}
+      {!value && displayError && <span className="mt-1.5 block text-xs text-red-400">{displayError}</span>}
     </div>
   );
 }
