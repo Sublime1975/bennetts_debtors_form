@@ -21,7 +21,7 @@ export function ReferencesStep() {
   };
 
   return (
-    <StepShell title="Trade references" description="Two of their existing suppliers who can vouch for this business." onNext={handleNext}>
+    <StepShell title="Trade references" description="Two of your existing suppliers who can vouch for this business." onNext={handleNext}>
       {(["tradeRef1", "tradeRef2"] as const).map((key, i) => (
         <div key={key} className={i > 0 ? "pt-2" : ""}>
           <p className="font-body text-xs tracking-wide uppercase text-muted mb-5">Trade reference {i + 1}</p>

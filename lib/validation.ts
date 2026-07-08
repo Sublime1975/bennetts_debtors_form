@@ -42,6 +42,19 @@ function isValidSaIdChecksum(id: string): boolean {
   return sum % 10 === 0;
 }
 
+function validateRegNumberFormat(entityType: string, value: string): string | null {
+  if (entityType === "CC") {
+    if (!/^CK\d{2,4}\/\d{4,6}$/i.test(value)) return "Enter a valid CK registration number, e.g. CK2007/123456";
+  } else if (entityType === "Sole Proprietor" || entityType === "Partnership") {
+    if (!INCOME_TAX_RE.test(value)) return "Income tax number must be 10 digits, starting with 0, 1, 2, 3 or 9";
+  } else if (entityType === "Trust") {
+    if (!/^IT\s?\d{1,6}\/\d{2,4}$/i.test(value)) return "Enter a valid Trust (IT) number, e.g. IT1234/17";
+  } else if (!CIPC_RE.test(value)) {
+    return "Enter a valid CIPC number, e.g. 2020/123456/07";
+  }
+  return null;
+}
+
 export function validateCompany(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { company } = data;
@@ -55,8 +68,9 @@ export function validateCompany(data: AppFormData): FieldErrors {
     requireField(errors, "foreignRegistrationNumber", company.foreignRegistrationNumber);
   } else {
     requireField(errors, "cipcNumber", company.cipcNumber);
-    if (company.cipcNumber && !CIPC_RE.test(company.cipcNumber)) {
-      errors.cipcNumber = "Enter a valid CIPC number, e.g. 2020/123456/07";
+    if (company.cipcNumber) {
+      const regErr = validateRegNumberFormat(company.entityType, company.cipcNumber);
+      if (regErr) errors.cipcNumber = regErr;
     }
   }
   return errors;
@@ -65,28 +79,35 @@ export function validateCompany(data: AppFormData): FieldErrors {
 export function validateContact(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
   const { contact } = data;
-  requireField(errors, "contactPerson", contact.contactPerson);
-  requireField(errors, "email", contact.email);
-  if (contact.email && !EMAIL_RE.test(contact.email)) {
-    errors.email = "Enter a valid email address";
-  }
-  requireField(errors, "phone", contact.phone);
   const isLocalContact = contact.country === "South Africa" || contact.country === "";
-  if (contact.phone && !isPhoneValid(contact.phone, isLocalContact)) {
-    errors.phone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
+
+  requireField(errors, "accountsContactName", contact.accountsContactName);
+  requireField(errors, "accountsEmail", contact.accountsEmail);
+  if (contact.accountsEmail && !EMAIL_RE.test(contact.accountsEmail)) {
+    errors.accountsEmail = "Enter a valid email address";
   }
-  requireField(errors, "physicalAddress", contact.physicalAddress);
+  requireField(errors, "accountsPhone", contact.accountsPhone);
+  if (contact.accountsPhone && !isPhoneValid(contact.accountsPhone, isLocalContact)) {
+    errors.accountsPhone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
+  }
+  if (contact.accountsCell && !isPhoneValid(contact.accountsCell, isLocalContact)) {
+    errors.accountsCell = isLocalContact ? "Enter a valid South African cell number" : "Enter a valid cell number";
+  }
+  requireField(errors, "accountsPhysicalAddress", contact.accountsPhysicalAddress);
   requireField(errors, "country", contact.country, "Select a country");
 
-  if (contact.accountsContactDifferent) {
-    requireField(errors, "accountsContactName", contact.accountsContactName);
-    requireField(errors, "accountsEmail", contact.accountsEmail);
-    if (contact.accountsEmail && !EMAIL_RE.test(contact.accountsEmail)) {
-      errors.accountsEmail = "Enter a valid email address";
+  if (contact.buyerContactDifferent) {
+    requireField(errors, "buyerContactName", contact.buyerContactName);
+    requireField(errors, "buyerEmail", contact.buyerEmail);
+    if (contact.buyerEmail && !EMAIL_RE.test(contact.buyerEmail)) {
+      errors.buyerEmail = "Enter a valid email address";
     }
-    requireField(errors, "accountsPhone", contact.accountsPhone);
-    if (contact.accountsPhone && !isPhoneValid(contact.accountsPhone, isLocalContact)) {
-      errors.accountsPhone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
+    requireField(errors, "buyerPhone", contact.buyerPhone);
+    if (contact.buyerPhone && !isPhoneValid(contact.buyerPhone, isLocalContact)) {
+      errors.buyerPhone = isLocalContact ? "Enter a valid South African phone number" : "Enter a valid phone number";
+    }
+    if (contact.buyerCell && !isPhoneValid(contact.buyerCell, isLocalContact)) {
+      errors.buyerCell = isLocalContact ? "Enter a valid South African cell number" : "Enter a valid cell number";
     }
   }
   return errors;
@@ -198,11 +219,14 @@ function validateFileField(errors: FieldErrors, key: string, file: UploadedFileM
 
 export function validateDocuments(data: AppFormData): FieldErrors {
   const errors: FieldErrors = {};
-  const { documents, tax } = data;
-  validateFileField(errors, "cipcCertificate", documents.cipcCertificate, true);
+  const { documents, tax, company } = data;
+  const cipcRequired = !company.isForeignEntity && (company.entityType === "(Pty) Ltd" || company.entityType === "CC");
+  const bbeeRequired = !!tax.bbeeLevel && tax.bbeeLevel !== "Exempt" && tax.bbeeLevel !== "Non-compliant";
+  validateFileField(errors, "cipcCertificate", documents.cipcCertificate, cipcRequired);
   validateFileField(errors, "vatCertificate", documents.vatCertificate, !!tax.vatRegistered);
-  validateFileField(errors, "sarsNoticeOfRegistration", documents.sarsNoticeOfRegistration, true);
-  validateFileField(errors, "proofOfAddress", documents.proofOfAddress, true);
+  validateFileField(errors, "vatNoticeOfRegistration", documents.vatNoticeOfRegistration, !!tax.vatRegistered);
+  validateFileField(errors, "sarsNoticeOfRegistration", documents.sarsNoticeOfRegistration, !tax.vatRegistered);
+  validateFileField(errors, "bbeeCertificate", documents.bbeeCertificate, bbeeRequired);
   validateFileField(errors, "bankConfirmationLetter", documents.bankConfirmationLetter, true);
   return errors;
 }
@@ -222,6 +246,9 @@ export function validateCredit(data: AppFormData): FieldErrors {
     if (!Number.isFinite(volume) || volume < 0) {
       errors.estimatedMonthlyPurchase = "Enter a valid amount";
     }
+  }
+  if (credit.paymentTermsRequested === "60 Days from statement") {
+    errors.paymentTermsRequested = "We unfortunately do not offer 60 days terms.";
   }
   return errors;
 }

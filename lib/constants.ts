@@ -30,17 +30,70 @@ export const DATA_STEPS: StepId[] = [
 ];
 
 // South African entity types (CC and Pty Ltd are SA-specific legal structures).
-export const ENTITY_TYPES: EntityType[] = ["Pty Ltd", "CC", "Sole Proprietor", "Partnership", "Trust"];
+export const ENTITY_TYPES: EntityType[] = ["(Pty) Ltd", "CC", "Sole Proprietor", "Partnership", "Trust"];
 
-// Generic structures for entities registered outside South Africa — CC and Pty Ltd
-// don't apply here since those are SA-specific company types.
-export const FOREIGN_ENTITY_TYPES: EntityType[] = [
+// Fallback structures for foreign entities registered in a country not listed in
+// ENTITY_TYPES_BY_COUNTRY below.
+export const FOREIGN_ENTITY_TYPES: string[] = [
   "Limited Company (Ltd/LLC)",
   "Public Company",
   "Sole Proprietor",
   "Partnership",
   "Trust",
   "Other",
+];
+
+// Country-specific legal entity structures for foreign entities, used in place of
+// FOREIGN_ENTITY_TYPES when the selected country of registration has a known list.
+export const ENTITY_TYPES_BY_COUNTRY: Record<string, string[]> = {
+  "United States": ["LLC", "C-Corporation", "S-Corporation", "Sole Proprietorship", "Partnership", "Trust"],
+  "United Kingdom": [
+    "Private Limited Company (Ltd)",
+    "Public Limited Company (PLC)",
+    "Limited Liability Partnership (LLP)",
+    "Sole Trader",
+    "Partnership",
+    "Trust",
+  ],
+  Australia: ["Proprietary Limited (Pty Ltd)", "Public Company", "Sole Trader", "Partnership", "Trust"],
+  "New Zealand": ["Limited Company (Ltd)", "Sole Trader", "Partnership", "Trust"],
+  Canada: ["Corporation (Inc./Ltd.)", "Sole Proprietorship", "Partnership", "Trust"],
+  Germany: ["GmbH", "AG", "Sole Proprietorship", "Partnership (OHG/KG)", "Trust/Foundation"],
+  India: [
+    "Private Limited Company",
+    "Public Limited Company",
+    "Limited Liability Partnership (LLP)",
+    "Sole Proprietorship",
+    "Partnership",
+    "Trust",
+  ],
+  Namibia: ["Pty Ltd", "CC", "Sole Proprietor", "Partnership", "Trust"],
+  Botswana: ["Pty Ltd", "Sole Proprietor", "Partnership", "Trust"],
+  Ireland: [
+    "Private Company Limited by Shares (LTD)",
+    "Public Limited Company (PLC)",
+    "Sole Trader",
+    "Partnership",
+    "Trust",
+  ],
+  Singapore: ["Private Limited Company (Pte Ltd)", "Sole Proprietorship", "Partnership", "Trust"],
+  "Hong Kong": ["Private Limited Company", "Sole Proprietorship", "Partnership", "Trust"],
+  "United Arab Emirates": [
+    "Limited Liability Company (LLC)",
+    "Free Zone Company",
+    "Sole Establishment",
+    "Partnership",
+    "Trust",
+  ],
+};
+
+// Payment terms offered on the credit application step. "60 Days from statement" is
+// listed but rejected at validation — see validateCredit in lib/validation.ts.
+export const PAYMENT_TERMS_OPTIONS: string[] = [
+  "Cash on Delivery",
+  "7 Days from Delivery",
+  "30 Days from statement",
+  "60 Days from statement",
 ];
 
 export const BBEE_LEVELS: BbeeLevel[] = [
@@ -247,6 +300,31 @@ export const SA_BANKS: { name: string; universalBranchCode: string }[] = [
   { name: "Standard Bank", universalBranchCode: "051001" },
   { name: "TymeBank", universalBranchCode: "678910" },
   { name: "Ubank", universalBranchCode: "431010" },
+];
+
+// Major banks in the countries our foreign debtors bank with most often, with SWIFT/BIC
+// codes for autofill. Not exhaustive and not a substitute for a universal branch-code
+// style guarantee — there's no single standard internationally, so the field stays
+// manually editable and users are told to double-check against their bank statement.
+export const MAJOR_INTL_BANKS: { name: string; swift: string }[] = [
+  { name: "HSBC (UK)", swift: "HBUKGB4B" },
+  { name: "Barclays (UK)", swift: "BARCGB22" },
+  { name: "Lloyds Bank (UK)", swift: "LOYDGB2L" },
+  { name: "NatWest (UK)", swift: "NWBKGB2L" },
+  { name: "Standard Chartered (UK)", swift: "SCBLGB2L" },
+  { name: "Deutsche Bank (Germany)", swift: "DEUTDEFF" },
+  { name: "Commerzbank (Germany)", swift: "COBADEFF" },
+  { name: "BNP Paribas (France)", swift: "BNPAFRPP" },
+  { name: "Societe Generale (France)", swift: "SOGEFRPP" },
+  { name: "Citibank (USA)", swift: "CITIUS33" },
+  { name: "JPMorgan Chase (USA)", swift: "CHASUS33" },
+  { name: "Bank of America (USA)", swift: "BOFAUS3N" },
+  { name: "Wells Fargo (USA)", swift: "WFBIUS6S" },
+  { name: "Royal Bank of Canada", swift: "ROYCCAT2" },
+  { name: "TD Bank (Canada)", swift: "TDOMCATTTOR" },
+  { name: "ANZ Bank (Australia)", swift: "ANZBAU3M" },
+  { name: "Commonwealth Bank (Australia)", swift: "CTBAAU2S" },
+  { name: "Westpac (Australia)", swift: "WPACAU2S" },
 ];
 
 export const STEP_TITLES: Partial<Record<StepId, string>> = {

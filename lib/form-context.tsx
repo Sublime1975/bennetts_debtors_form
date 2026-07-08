@@ -12,12 +12,14 @@ const blankDirector = (): Director => ({
   suretyshipAgreed: false,
   suretyshipSignature: "",
   suretyshipDate: "",
+  suretyshipDrawnSignature: null,
 });
 
 const initialFormData: AppFormData = {
   company: {
     tradingName: "",
     registeredName: "",
+    website: "",
     entityType: "",
     isForeignEntity: null,
     cipcNumber: "",
@@ -25,17 +27,19 @@ const initialFormData: AppFormData = {
     foreignRegistrationNumber: "",
   },
   contact: {
-    contactPerson: "",
-    email: "",
-    phone: "",
-    physicalAddress: "",
     country: "South Africa",
-    postalAddress: "",
-    postalSameAsPhysical: false,
-    accountsContactDifferent: false,
     accountsContactName: "",
     accountsEmail: "",
     accountsPhone: "",
+    accountsCell: "",
+    accountsPhysicalAddress: "",
+    accountsPostalAddress: "",
+    accountsPostalSameAsPhysical: false,
+    buyerContactDifferent: false,
+    buyerContactName: "",
+    buyerEmail: "",
+    buyerPhone: "",
+    buyerCell: "",
   },
   directors: [blankDirector()],
   references: {
@@ -62,8 +66,9 @@ const initialFormData: AppFormData = {
   documents: {
     cipcCertificate: null,
     vatCertificate: null,
+    vatNoticeOfRegistration: null,
     sarsNoticeOfRegistration: null,
-    proofOfAddress: null,
+    bbeeCertificate: null,
     bankConfirmationLetter: null,
   },
   credit: {

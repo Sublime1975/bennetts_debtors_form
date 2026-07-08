@@ -17,9 +17,22 @@ interface StepShellProps {
   onNext: () => void;
   nextLabel?: string;
   nextDisabled?: boolean;
+  /** Set false to suppress the default "* Required field" footnote (e.g. steps with no required fields). */
+  showRequiredNote?: boolean;
+  /** Extra note rendered below the card, replacing the required-field footnote. */
+  footnote?: ReactNode;
 }
 
-export function StepShell({ title, description, children, onNext, nextLabel = "Next step", nextDisabled }: StepShellProps) {
+export function StepShell({
+  title,
+  description,
+  children,
+  onNext,
+  nextLabel = "Next step",
+  nextDisabled,
+  showRequiredNote = true,
+  footnote,
+}: StepShellProps) {
   const { currentStep, goBack } = useFormState();
   const stepIndex = DATA_STEPS.indexOf(currentStep);
 
@@ -45,6 +58,22 @@ export function StepShell({ title, description, children, onNext, nextLabel = "N
           </GradientButton>
         </div>
       </Card>
+      {footnote ? (
+        <div className="mt-7 max-w-2xl text-center px-4">
+          <span className="font-body text-xs text-muted">{footnote}</span>
+        </div>
+      ) : (
+        showRequiredNote && (
+          <div className="mt-7 text-center">
+            <span className="font-body text-xs text-muted">
+              <span className="font-semibold" style={{ color: "#E3B679" }}>
+                *
+              </span>{" "}
+              Required field
+            </span>
+          </div>
+        )
+      )}
     </motion.div>
   );
 }

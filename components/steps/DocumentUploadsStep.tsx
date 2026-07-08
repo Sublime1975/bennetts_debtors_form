@@ -14,8 +14,13 @@ import { DATA_STEPS } from "@/lib/constants";
 
 export function DocumentUploadsStep() {
   const { formData, updateSection, errors, setErrors, goNext, goBack, currentStep } = useFormState();
-  const { documents, tax } = formData;
+  const { documents, tax, company } = formData;
   const stepIndex = DATA_STEPS.indexOf(currentStep);
+
+  const cipcRequired = !company.isForeignEntity && (company.entityType === "(Pty) Ltd" || company.entityType === "CC");
+  const bbeeIsNonCompliant = tax.bbeeLevel === "Non-compliant";
+  const bbeeCertRequired = !!tax.bbeeLevel && tax.bbeeLevel !== "Exempt" && tax.bbeeLevel !== "Non-compliant";
+  const bbeeCertLabel = bbeeIsNonCompliant ? "B-BBEE non-compliance certificate" : "B-BBEE Certificate or Affidavit";
 
   const handleNext = () => {
     const stepErrors = validateDocuments(formData);
@@ -42,36 +47,53 @@ export function DocumentUploadsStep() {
             <FileDropzone
               id="cipcCertificate"
               label="Company Registration Certificate (CIPC)"
-              required
+              required={cipcRequired}
               value={documents.cipcCertificate}
               onChange={(meta) => updateSection("documents", { cipcCertificate: meta })}
               error={errors.cipcCertificate}
             />
             {tax.vatRegistered && (
+              <>
+                <FileDropzone
+                  id="vatCertificate"
+                  label="VAT Certificate"
+                  required
+                  value={documents.vatCertificate}
+                  onChange={(meta) => updateSection("documents", { vatCertificate: meta })}
+                  error={errors.vatCertificate}
+                />
+                <FileDropzone
+                  id="vatNoticeOfRegistration"
+                  label="VAT Notice of Registration"
+                  required
+                  value={documents.vatNoticeOfRegistration}
+                  onChange={(meta) => updateSection("documents", { vatNoticeOfRegistration: meta })}
+                  error={errors.vatNoticeOfRegistration}
+                />
+              </>
+            )}
+            {!tax.vatRegistered && (
               <FileDropzone
-                id="vatCertificate"
-                label="VAT Certificate"
+                id="sarsNoticeOfRegistration"
+                label="SARS Notice of Registration"
                 required
-                value={documents.vatCertificate}
-                onChange={(meta) => updateSection("documents", { vatCertificate: meta })}
-                error={errors.vatCertificate}
+                value={documents.sarsNoticeOfRegistration}
+                onChange={(meta) => updateSection("documents", { sarsNoticeOfRegistration: meta })}
+                error={errors.sarsNoticeOfRegistration}
               />
             )}
+            {bbeeIsNonCompliant && (
+              <p className="-mt-2 font-body text-xs text-muted">
+                Do you have a B-BBEE non-compliance certificate? If so, please upload it below.
+              </p>
+            )}
             <FileDropzone
-              id="sarsNoticeOfRegistration"
-              label="SARS Notice of Registration"
-              required
-              value={documents.sarsNoticeOfRegistration}
-              onChange={(meta) => updateSection("documents", { sarsNoticeOfRegistration: meta })}
-              error={errors.sarsNoticeOfRegistration}
-            />
-            <FileDropzone
-              id="proofOfAddress"
-              label="Proof of Address (utility bill, less than 3 months old)"
-              required
-              value={documents.proofOfAddress}
-              onChange={(meta) => updateSection("documents", { proofOfAddress: meta })}
-              error={errors.proofOfAddress}
+              id="bbeeCertificate"
+              label={bbeeCertLabel}
+              required={bbeeCertRequired}
+              value={documents.bbeeCertificate}
+              onChange={(meta) => updateSection("documents", { bbeeCertificate: meta })}
+              error={errors.bbeeCertificate}
             />
             <FileDropzone
               id="bankConfirmationLetter"
@@ -89,6 +111,14 @@ export function DocumentUploadsStep() {
             </GradientButton>
           </div>
         </Card>
+      </div>
+      <div className="mt-7 text-center">
+        <span className="font-body text-xs text-muted">
+          <span className="font-semibold" style={{ color: "#E3B679" }}>
+            *
+          </span>{" "}
+          Required field
+        </span>
       </div>
     </motion.div>
   );

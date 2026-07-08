@@ -1,12 +1,4 @@
-export type EntityType =
-  | "Pty Ltd"
-  | "CC"
-  | "Sole Proprietor"
-  | "Partnership"
-  | "Trust"
-  | "Limited Company (Ltd/LLC)"
-  | "Public Company"
-  | "Other";
+export type EntityType = "(Pty) Ltd" | "CC" | "Sole Proprietor" | "Partnership" | "Trust";
 
 export type BbeeLevel =
   | "Level 1"
@@ -37,6 +29,7 @@ export interface Director {
   suretyshipAgreed: boolean;
   suretyshipSignature: string;
   suretyshipDate: string;
+  suretyshipDrawnSignature: string | null;
 }
 
 export interface TradeReference {
@@ -49,7 +42,8 @@ export interface TradeReference {
 export interface CompanyDetails {
   tradingName: string;
   registeredName: string;
-  entityType: EntityType | "";
+  website: string;
+  entityType: EntityType | string | "";
   isForeignEntity: boolean | null;
   cipcNumber: string;
   countryOfRegistration: string;
@@ -57,17 +51,19 @@ export interface CompanyDetails {
 }
 
 export interface ContactDetails {
-  contactPerson: string;
-  email: string;
-  phone: string;
-  physicalAddress: string;
   country: string;
-  postalAddress: string;
-  postalSameAsPhysical: boolean;
-  accountsContactDifferent: boolean;
   accountsContactName: string;
   accountsEmail: string;
   accountsPhone: string;
+  accountsCell: string;
+  accountsPhysicalAddress: string;
+  accountsPostalAddress: string;
+  accountsPostalSameAsPhysical: boolean;
+  buyerContactDifferent: boolean;
+  buyerContactName: string;
+  buyerEmail: string;
+  buyerPhone: string;
+  buyerCell: string;
 }
 
 export interface ReferencesDetails {
@@ -97,8 +93,9 @@ export interface BankingDetails {
 export interface DocumentsDetails {
   cipcCertificate: UploadedFileMeta | null;
   vatCertificate: UploadedFileMeta | null;
+  vatNoticeOfRegistration: UploadedFileMeta | null;
   sarsNoticeOfRegistration: UploadedFileMeta | null;
-  proofOfAddress: UploadedFileMeta | null;
+  bbeeCertificate: UploadedFileMeta | null;
   bankConfirmationLetter: UploadedFileMeta | null;
 }
 

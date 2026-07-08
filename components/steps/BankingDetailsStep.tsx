@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
 import { BankNameField } from "@/components/ui/BankNameField";
+import { ForeignBankField } from "@/components/ui/ForeignBankField";
 import { SelectField } from "@/components/ui/SelectField";
 import { CheckboxField } from "@/components/ui/CheckboxField";
 import { useFormState } from "@/lib/form-context";
@@ -38,14 +39,21 @@ export function BankingDetailsStep() {
         error={errors.accountHolder}
       />
       {banking.isForeignBank ? (
-        <Field
-          label="Bank name"
-          required
-          placeholder="e.g. Barclays, HSBC, Deutsche Bank"
-          value={banking.bankName}
-          onChange={(e) => updateSection("banking", { bankName: e.target.value })}
-          error={errors.bankName}
-        />
+        <div>
+          <ForeignBankField
+            label="Bank name"
+            required
+            placeholder="e.g. Barclays, HSBC, Deutsche Bank"
+            value={banking.bankName}
+            onChange={(value) => updateSection("banking", { bankName: value })}
+            onSelectBank={(swift) => updateSection("banking", { swiftCode: swift })}
+            error={errors.bankName}
+          />
+          <p className="mt-1.5 font-body text-xs text-muted">
+            Autofills SWIFT/BIC for major international banks — unlike SA branch codes there&apos;s no single universal
+            standard, so double-check against your bank statement.
+          </p>
+        </div>
       ) : (
         <BankNameField
           label="Bank name"

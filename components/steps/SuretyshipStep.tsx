@@ -3,6 +3,7 @@
 import { StepShell } from "@/components/layout/StepShell";
 import { Field } from "@/components/ui/Field";
 import { CheckboxField } from "@/components/ui/CheckboxField";
+import { SignaturePad } from "@/components/ui/SignaturePad";
 import { useFormState } from "@/lib/form-context";
 import { validateSuretyship } from "@/lib/validation";
 
@@ -79,6 +80,11 @@ export function SuretyshipStep() {
                 value={director.suretyshipDate}
                 onChange={(e) => updateDirector(index, { suretyshipDate: e.target.value })}
                 error={errors[`suretyship.${index}.date`]}
+              />
+              <SignaturePad
+                label="Draw your signature (optional, in addition to typed name above)"
+                value={director.suretyshipDrawnSignature}
+                onChange={(dataUrl) => updateDirector(index, { suretyshipDrawnSignature: dataUrl })}
               />
             </div>
           </div>

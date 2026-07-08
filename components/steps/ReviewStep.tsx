@@ -11,6 +11,7 @@ import { useFormState } from "@/lib/form-context";
 import { validateDeclarationAndConsent } from "@/lib/validation";
 import { generateReferenceNumber } from "@/lib/reference-number";
 import { StepId } from "@/lib/types";
+import { regNumberLabel } from "./CompanyDetailsStep";
 
 function EditLink({ stepId, onEdit }: { stepId: StepId; onEdit: (step: StepId) => void }) {
   return (
@@ -86,8 +87,11 @@ export function ReviewStep() {
   const documentRows: [string, string][] = [
     ["CIPC certificate", documents.cipcCertificate?.name ?? ""],
     ["VAT certificate", documents.vatCertificate?.name ?? ""],
-    ["SARS notice of registration", documents.sarsNoticeOfRegistration?.name ?? ""],
-    ["Proof of address", documents.proofOfAddress?.name ?? ""],
+    [
+      tax.vatRegistered ? "VAT notice of registration" : "SARS notice of registration",
+      tax.vatRegistered ? documents.vatNoticeOfRegistration?.name ?? "" : documents.sarsNoticeOfRegistration?.name ?? "",
+    ],
+    ["B-BBEE certificate", documents.bbeeCertificate?.name ?? ""],
     ["Bank confirmation letter", documents.bankConfirmationLetter?.name ?? ""],
   ];
 
@@ -112,6 +116,7 @@ export function ReviewStep() {
             rows={[
               ["Trading name", company.tradingName],
               ["Registered name", company.registeredName],
+              ["Website", company.website],
               ["Entity type", company.entityType],
               ["Local or foreign", company.isForeignEntity === null ? "" : company.isForeignEntity ? "Foreign" : "Local"],
               ...(company.isForeignEntity
@@ -119,7 +124,7 @@ export function ReviewStep() {
                     ["Country of registration", company.countryOfRegistration],
                     ["Foreign registration number", company.foreignRegistrationNumber],
                   ] as [string, string][])
-                : ([["CIPC number", company.cipcNumber]] as [string, string][])),
+                : ([[regNumberLabel(company.entityType), company.cipcNumber]] as [string, string][])),
             ]}
           />
           <ReviewGroup
@@ -127,12 +132,23 @@ export function ReviewStep() {
             stepId="contact"
             onEdit={goToStep}
             rows={[
-              ["Contact person", contact.contactPerson],
-              ["Email", contact.email],
-              ["Phone", contact.phone],
-              ["Physical address", contact.physicalAddress],
+              ["Accounts Payable contact", contact.accountsContactName],
+              ["Accounts Payable email", contact.accountsEmail],
+              ["Accounts Payable phone", contact.accountsPhone],
+              ["Accounts Payable cell", contact.accountsCell],
+              ["Accounts Payable address", contact.accountsPhysicalAddress],
               ["Country", contact.country],
-              ["Postal address", contact.postalSameAsPhysical ? contact.physicalAddress : contact.postalAddress],
+              [
+                "Accounts Payable postal address",
+                contact.accountsPostalSameAsPhysical ? contact.accountsPhysicalAddress : contact.accountsPostalAddress,
+              ],
+              ...(contact.buyerContactDifferent
+                ? ([
+                    ["Buyer/Procurement contact", `${contact.buyerContactName} (${contact.buyerEmail})`],
+                    ["Buyer/Procurement phone", contact.buyerPhone],
+                    ["Buyer/Procurement cell", contact.buyerCell],
+                  ] as [string, string][])
+                : []),
             ]}
           />
           <ReviewGroup
@@ -187,8 +203,14 @@ export function ReviewStep() {
             stepId="credit"
             onEdit={goToStep}
             rows={[
-              ["Credit limit requested", credit.creditLimitRequested ? `R${credit.creditLimitRequested}` : ""],
-              ["Estimated monthly purchases", credit.estimatedMonthlyPurchase ? `R${credit.estimatedMonthlyPurchase}` : ""],
+              [
+                "Credit limit requested",
+                credit.creditLimitRequested ? `R ${Number(credit.creditLimitRequested).toLocaleString("en-ZA")}` : "",
+              ],
+              [
+                "Estimated monthly purchases",
+                credit.estimatedMonthlyPurchase ? `R ${Number(credit.estimatedMonthlyPurchase).toLocaleString("en-ZA")}` : "",
+              ],
               ["Payment terms requested", credit.paymentTermsRequested],
             ]}
           />
