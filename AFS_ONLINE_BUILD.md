@@ -1,9 +1,15 @@
 # AFS Online — Design Specification & Build Plan
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 18 July 2026
 **Owner:** Terry (Bennetts)
 **Status:** Approved for build — v1 scope locked per Q&A of 18 Jul 2026
+
+**v1.1 changes:** lead sheets respecified as Draftworx/CaseWare-style lead
+schedules with account-level breakdown and drill-down (§A10); note templates and
+AFS look now explicitly sourced from owner-supplied notes/examples (§A8.1, Part C);
+Close Corporations earmarked for v2 with `entityType` reserved in the data model
+(§A3.4, §A14).
 
 ---
 
@@ -54,6 +60,14 @@ once a company is set up. The user is a **company accountant / practice drafting
 companies** — not an audit firm. There is no audit-methodology bloat: the workflow is
 TB in → map → adjust → statements + notes → lead sheets with working-paper evidence →
 PDF out (print or email).
+
+**Working model:** the drafting workflow deliberately mirrors Draftworx and
+CaseWare Working Papers — import a TB, map it to a standard chart, work off a
+working trial balance with drill-down, and support each statement area with a
+**lead schedule** that breaks the FS line down to its GL accounts — but strips
+out everything audit-shaped: no audit programmes, no assurance procedures, no
+tickmark methodology, no complex full-IFRS disclosure engine. Evidence is simply
+Excel workings and PDFs attached below each lead schedule.
 
 ### A1.2 The core loop
 
@@ -228,6 +242,11 @@ interface User {
 ```typescript
 interface Organization {
   id: string;
+  entityType: 'company';            // v2 widens to | 'cc' (Close Corporation):
+                                    // members instead of directors, member's
+                                    // interest instead of share capital,
+                                    // accounting officer's report. Reserved now
+                                    // so v2 needs no data migration.
   name: string;                     // "ABC Trading (Pty) Ltd"
   tradingName?: string;
   registrationNumber: string;       // "2018/123456/07"
@@ -298,6 +317,7 @@ interface OrgSettings {
   };
   workingPaperNumbering: { prefix: string; separator: string; pad: number };
   // default { prefix: 'WP', separator: '-', pad: 3 }  →  WP-001
+  leadSheetReferencing: 'numeric' | 'section_letter';   // §A10.2, default 'numeric'
   emailDefaults: { subject: string; body: string; recipients: string[] };
   updatedAt: Timestamp;
 }
@@ -487,16 +507,25 @@ interface TaxComputation {
   updatedAt: Timestamp;
 }
 
-// leadSheets/{lsId} — §A10
+// leadSheets/{lsId} — §A10 (Draftworx/CaseWare-style lead schedule)
 interface LeadSheet {
   id: string;
-  reference: string;                // "LS-001"
+  reference: string;                // "LS-001" (or section letter "B" — §A10.2)
   title: string;                    // FS line description
   fsLineId: string;                 // statement template line it supports
+  // Account-level breakdown: the GL accounts behind this FS line (drill-down),
+  // recomputed from TB + adjustments on regenerate — the core lead schedule body.
+  accounts: {
+    accountCode: string; accountName: string;
+    tbBalance: number;              // unadjusted, current period
+    adjustmentsTotal: number;       // posted adjustment lines on this account
+    finalBalance: number;
+    priorYear?: number;             // comparative final balance
+  }[];
   reconciliation: {
-    tbBalance: number;
+    tbBalance: number;              // Σ accounts.tbBalance
     adjustments: { adjId: string; reference: string; description: string; amount: number }[];
-    fsBalance: number;
+    fsBalance: number;              // FS line amount
     difference: number;             // must be 0 to show "Reconciled"
   };
   status: 'draft' | 'completed';
@@ -922,7 +951,13 @@ rendering and PDF are uniform.
 
 Each note template defines: title, applicability rule, ordered blocks (paragraph
 templates with `{placeholders}`, table definitions bound to targets/movement
-data), and whether it is required. v1 note set (IFRS for SMEs, SA SME-typical):
+data), and whether it is required.
+
+**Source of truth for note content and AFS look: the product owner supplies the
+full set of notes and example AFS** (Part C #1 — committed, not optional). The
+note templates are built *from* that supplied set in Phase 6; the list below is
+a provisional checklist of what a typical SA IFRS-for-SMEs set contains, used
+only to size the work and sanity-check completeness against the supplied notes:
 
 1. Accounting policies (required; sub-policies included based on which targets
    have balances — e.g. inventories policy only if inventory exists)
@@ -951,9 +986,8 @@ data), and whether it is required. v1 note set (IFRS for SMEs, SA SME-typical):
 21. Going concern (text-only, conditional)
 22. Comparative figures / prior period adjustment (conditional, text)
 
-The exact wording of paragraph templates is drafted in Phase 6 **against the
-example AFS PDFs supplied by the product owner** (Part C input — do not invent
-final wording without them).
+Do not invent final wording — build from the supplied notes; where a supplied
+note doesn't exist for an applicable area, ask the product owner in Phase 6.
 
 ### A8.2 Numbering & applicability
 
@@ -1060,15 +1094,50 @@ the reconciliation check still applies after overrides.
 
 ## A10. Lead sheets & working papers
 
-### A10.1 Generation
+The working model here is a **simplified Draftworx/CaseWare lead schedule**: each
+statement area gets a schedule that drills the FS line down to its GL accounts,
+with the evidence (Excel workings, PDFs) filed directly beneath it. No audit
+programmes, procedures, or tickmarks.
 
-`Auto-Generate All` creates one lead sheet per SoFP note-bearing line with a
-non-zero balance (and none for zero lines); users can also create ad-hoc lead
-sheets. Reference `LS-001`… in statement order. Each lead sheet shows the
-reconciliation: TB balance (sum of mapped accounts) + posted adjustments touching
-those targets = FS balance; difference must be zero → "Reconciled" badge.
-(Because statements are derived from TB + adjustments, a non-zero difference only
-arises from note-table overrides or stale statements — the card links to the cause.)
+### A10.1 The lead schedule layout
+
+```
+LS-002 (or "B")  Trade and other receivables            v Reconciled
+─────────────────────────────────────────────────────────────────────
+Account                        TB balance    Adjustments      Final      Prior yr
+1100  Debtors control            380,000        (15,000)    365,000      410,000
+1150  Prepayments                  5,000              —        5,000        8,000
+─────────────────────────────────────────────────────────────────────
+                                 385,000        (15,000)    370,000      418,000
+Per AFS: Trade and other receivables            370,000   Difference: 0.00
+
+Adjustments applied:
+  AJ003  Allowance for doubtful debts           (15,000)   [view]
+
+Working papers:
+  WP-001  AR_Aging_Feb2026.xlsx        [inline Excel preview]
+    └─ Debtors_Confirmation.pdf        [inline PDF preview, attached below]
+  WP-002  Doubtful_Debts_Calc.xlsx
+  [+ Add working paper]
+```
+
+- **Account rows are the drill-down** (Draftworx's working-trial-balance drill):
+  every GL account mapped into this FS line, showing unadjusted TB balance,
+  adjustments, final balance, and prior year. Clicking an adjustment opens it.
+- The schedule total must tie to the AFS line; difference must be zero →
+  "Reconciled" badge. (Because statements derive from TB + adjustments, a
+  non-zero difference only arises from note-table overrides or stale
+  statements — the card links to the cause.)
+- Lead schedules are recomputed on statement regeneration; attached working
+  papers persist.
+- Each lead schedule is printable on its own and included in an optional
+  "working paper file" export (earmarked: v1 prints individually).
+
+### A10.1a Generation
+
+`Auto-Generate All` creates one lead schedule per SoFP note-bearing line with a
+non-zero balance (and none for zero lines); users can also create ad-hoc ones.
+References assigned in statement order.
 
 ### A10.2 Working papers: numbering & placement
 
@@ -1076,6 +1145,10 @@ arises from note-table overrides or stale statements — the card links to the c
 - Reference auto-defaults to the **next logical number within that lead sheet**
   (`WP-001`, `WP-002`, …, per org numbering settings §A3.5); user may override at
   creation; uniqueness enforced per lead sheet.
+- **Referencing style is an org setting:** `numeric` (default: `LS-001` /
+  `WP-001`) or `section_letter` (CaseWare convention: lead schedules `A`, `B`,
+  `C`… in statement order, working papers `B1`, `B2`… under them). Product owner
+  to pick a default when reviewing Phase 8 (Appendix 2 #11).
 
 ### A10.3 Right-click context menu (on a lead sheet card)
 
@@ -1175,14 +1248,24 @@ download, email, delete.
 
 ## A14. Earmarked for later (do not build, do not block)
 
-Live API integrations (Sage/Xero/QuickBooks) · full IFRS & FRS 102 templates ·
-multi-user roles, invitations, read-only bank/auditor links · Stripe billing &
-plans · automatic deferred tax · consolidations · XBRL · adjustment import from
-Excel · magic-link auth · Microsoft SSO · multi-language.
+**Close Corporations (v2 — first in the queue, per product owner):** CC entity
+type alongside companies. Differences to plan for, none of which change the v1
+engines: members instead of directors (members' responsibility statement, member
+signatures), **member's interest (%)** instead of share capital, loans to/from
+members note, **accounting officer's report** (Close Corporations Act) instead
+of/alongside the compilation report, "Annual Financial Statements" terminology
+per the CC Act, CK registration numbers. The `Organization.entityType` field is
+reserved in v1 (§A3.4); templates gain a CC variant set in v2.
+
+Also earmarked: live API integrations (Sage/Xero/QuickBooks) · full IFRS &
+FRS 102 templates · multi-user roles, invitations, read-only bank/auditor links ·
+Stripe billing & plans · automatic deferred tax · consolidations · XBRL ·
+adjustment import from Excel · working-paper-file combined export · magic-link
+auth · Microsoft SSO · multi-language.
 
 The data model already reserves: `User.organizations` (role map later),
-`Organization.framework` union, `subscription` fields (add when needed),
-`importSource` enum values.
+`Organization.entityType` and `.framework` unions, `subscription` fields (add
+when needed), `importSource` enum values.
 
 ---
 
@@ -1257,9 +1340,9 @@ unbalanced adjustment cannot be posted; reversal mirrors correctly.
 spreadsheet independently.
 
 ### Phase 5 — Statement engine: SoFP, SoCI, SoCE, Detailed IS
-**⛔ Before starting: request the example AFS PDFs from the product owner
-(Part C). Layout and wording decisions in this phase and Phase 6 must be checked
-against them.**
+**⛔ Before starting: request the full note set and example AFS (the desired
+look) from the product owner (Part C #1). Layout and wording decisions in this
+phase and Phase 6 are built from them, not invented.**
 **Tasks:** Template engine (§A7) + seeded IFRS-SME templates for SoFP/SoCI/
 detailed IS; SoCE builder; comparatives: prior-period source + prior-year TB
 import flow + manual entry mode (§A6.5); rounding + integrity checks (§A6.6);
@@ -1297,14 +1380,20 @@ spreadsheet.
 **Review gate:** reviewer traces every cash flow line back to target movements.
 
 ### Phase 8 — Lead sheets & working papers
-**Tasks:** §A10 in full: auto-generate from SoFP lines, reconciliation blocks,
-right-click context menu, Excel/PDF/image upload with per-lead-sheet `WP-`
-auto-numbering, SheetJS inline Excel viewer, pdf.js inline viewer,
-attach-PDF-below-working-paper, Storage rules for working paper paths.
-**Acceptance:** auto-generate produces one lead sheet per non-zero SoFP note
-line, all showing Reconciled; upload xlsx → renders inline with sheet tabs;
-upload PDF under it → previews below it on click; numbering runs WP-001,
-WP-002… and honours a manual override; 30 MB file rejected.
+**Tasks:** §A10 in full: auto-generate lead schedules from SoFP lines **with
+the account-level breakdown (drill-down) body and prior-year column**,
+reconciliation, right-click context menu, Excel/PDF/image upload with
+per-lead-sheet `WP-` auto-numbering, both referencing styles (numeric /
+section-letter), SheetJS inline Excel viewer, pdf.js inline viewer,
+attach-PDF-below-working-paper, per-schedule print, Storage rules for working
+paper paths.
+**Acceptance:** auto-generate produces one lead schedule per non-zero SoFP note
+line, each listing its GL accounts with TB/adjustments/final/prior-year columns
+that tie to the Final TB export and to the AFS line, all showing Reconciled;
+switching referencing style re-letters schedules correctly; upload xlsx →
+renders inline with sheet tabs; upload PDF under it → previews below it on
+click; numbering runs WP-001, WP-002… and honours a manual override; 30 MB file
+rejected.
 **Review gate:** reviewer exercises the full right-click flow including
 deletion and re-numbering.
 
@@ -1339,7 +1428,7 @@ owner acceptance.
 
 | # | Input | Needed before | Why |
 |---|---|---|---|
-| 1 | **2–3 example AFS PDFs** (the product owner offered these: "I can give you a few PDFs as examples… ask for them then") | Phase 5 starts | Statement layout, note wording, front-matter wording are checked against real examples, not invented |
+| 1 | **The full set of notes + example AFS showing the desired look** (the product owner has committed to supplying all notes and the AFS look) | Phase 5 starts | Statement layout, note wording and front-matter wording are built *from* these — never invented. Interim layout reference only: [Draftworx example financials](https://draftworx.com/download/Draftworx-Example-Financials.pdf) |
 | 2 | Bennetts firm details for the compiler block (firm name, practitioner, designation, practice number) | Phase 1 (can use placeholders until Phase 9) | Compilation report + general information page |
 | 3 | 1–2 real (anonymised) TB exports from the systems clients actually use (Sage Pastel etc.) | Phase 2 | Import wizard must handle the real file shapes, not idealised fixtures |
 | 4 | House wording preferences for directors' report / responsibility statement, if any | Phase 9 | Editable templates should start from preferred wording |
@@ -1453,6 +1542,9 @@ product owner, flagged for review rather than silently assumed:
    (Part C #6 asks for the repo decision).
 10. **Monthly pack default** = SoFP + SoCI with prior-month comparative;
     configurable per §A3.5.
+11. **Lead schedule referencing defaults to numeric** (`LS-001`); the CaseWare
+    section-letter style (`A`, `B1`…) is available as an org setting — product
+    owner to pick the default at Phase 8 review.
 
 ---
 
